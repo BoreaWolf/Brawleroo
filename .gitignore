@@ -3,6 +3,6 @@ Webpages/*
 !Webpages/.gitkeep
 
 # Temporary files
-**.*swp
-**.*.html
+**/*.swp
+**/*.html
 
