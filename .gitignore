@@ -1,8 +1,11 @@
 # Personal ignores
 Webpages/*
 !Webpages/.gitkeep
+Comparisons/*
+!Comparisons/.gitkeep
 
 # Temporary files
 **/*.swp
 **/*.html
+**/*.csv
 

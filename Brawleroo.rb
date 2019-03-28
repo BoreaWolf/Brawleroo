@@ -6,9 +6,6 @@
 # compare them with a nice UI
 #
 
-require "nokogiri"
-require "open-uri"
-
 require "./Constants.rb"
 require "./Player.rb"
 
@@ -32,4 +29,8 @@ player_compared_stats = players.compare_to( ID_MINE )
 player_compared_stats.each do |player_comparison|
     puts " => #{player_comparison.printable()}"
 end
+
+# Exporting data to csv file
+players.export_to_csv()
+players.create_graphs( ID_MINE )
 

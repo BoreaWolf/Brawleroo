@@ -24,6 +24,10 @@ class Victories
         return "Victories: #{@trio} 3v3, #{duo} 2v2, #{solo} 1v1"
     end
 
+    def export_to_csv()
+        return "#{@trio}\t#{@duo}\t#{@solo}"
+    end
+
     def self.compare( a, b )
         result = Victories.new()
         result.trio = a.trio - b.trio

@@ -5,6 +5,9 @@
 # Description: Class representing a single player
 #
 
+require "squid"
+require "prawn"
+
 require "./Constants.rb"
 require "./Trophies.rb"
 require "./Experience.rb"
@@ -81,6 +84,10 @@ class Players
         return "Player not found."
     end
 
+    def get_player_name( id )
+        return get_player_by_id( id ).name
+    end
+
     # Comparing all players to the given one
     def compare_to( id )
         player_comparisons = Array.new()
@@ -114,5 +121,101 @@ class Players
             result +=  " => " + player.printable() + "\n"
         end
         return result
+    end
+
+    def export_to_csv()
+        print "Exporting data to '#{EXPORT_FILE_DIR}#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}'..."
+        File.open( "#{EXPORT_FILE_DIR}#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}", "w" ) do |export_file|
+            # Writing the header as first line of the document
+            export_file.write( "#{EXPORT_FILE_HEADER_LINE}" )
+            @player_list.each do |player|
+                player_stats = "#{player.name}\t#{player.id}\t#{player.trophies.export_to_csv()}\t"
+                player_stats += "#{player.victories.export_to_csv()}\t"
+                player_stats += "#{player.brawlers.export_to_csv()}"
+                export_file.write( "#{player_stats}\n" )
+            end
+        end
+        puts "DONE (•̀o•́)ง"
+    end
+
+    def create_graphs( player_id )
+        print "Creating cute graphs for the player '#{player_id}'..."
+
+        # Creating all data used to print afterwards
+        players_data_series = Hash.new
+        data_selectors = [ "trophies", "max_trophies" ]
+        data_selectors.each do |data_selector|
+            players_data_series[ data_selector ] = Hash.new
+            @player_list.each do |player|
+                players_data_series[ data_selector ][ player.name ] = Hash.new
+                CHARS.each do |char_name, _, _|
+                    case data_selector
+                    when "trophies"
+                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
+                    when "max_trophies"
+                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.max_trophies
+                    end
+                end
+            end
+        end
+        
+        # Player page
+
+        # Comparisons with other players, one page per player
+        # Creating a graph with all brawlers on the x-axis and their trophies on
+        # the y-axis
+        Prawn::Document.generate( "#{PDF_FILE_DIR}/#{get_player_name( player_id )}#{PDF_FILE_EXT}",
+                                  :page_layout => :landscape ) do |output_file|
+            # Cycling on the brawlers
+            # data = { player_id => { x => y, ... }, ... }
+            @player_list.each do |player|
+                if player.id != player_id then
+                    #   puts "Pre title: #{output_file.cursor} #{output_file.cursor.class}"
+                    output_file.text( "#{get_player_name( player_id )} vs. #{player.name}", :align => :center )
+                    #   puts "Pre graph: #{output_file.cursor}"
+                    output_file.chart( players_data_series[ "trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
+                    #   puts "Pre caption: #{output_file.cursor}"
+                    output_file.text( "Current trophies", :align => :center )
+                    #   puts "Pre graph: #{output_file.cursor}"
+                    output_file.chart( players_data_series[ "max_trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name },
+                                       type: :line,
+                                       line_widths: [ 2, 2 ],
+                                       labels: [ true, true ],
+                                       legend: false )
+                    #   puts "Pre caption: #{output_file.cursor}"
+                    output_file.text( "Max trophies", :align => :center )
+                    #   puts "End page: #{output_file.cursor}"
+                    #   output_file.start_new_page()
+                    #   puts "New page: #{output_file.cursor}"
+                    
+                    # TODO: This library does not allow me to choose the type of
+                    # style for each data series. Fix it to create a single
+                    # graph with all the information in it, only if the result
+                    # is not too messy.
+                    #   output_data = Hash.new
+                    #   #   settings = { "type" => { :stack, :line, :point, :point }, "labels" => { false, false, true, true } }
+                    #   data_selectors.each do |data_selector|
+                    #       #   puts "Merging #{data_selector}"
+                    #       #   composing = players_data_series[ data_selector ].select{ |k, v| k == get_player_name( player_id ) or k == player.name }
+                    #       #   composing = composing.map{ |k, v| composing[ "max#{k}" ] = v }
+                    #       #   puts "#{composing}"
+                    #       if data_selector.include?( "max" ) then
+                    #           output_data[ "max#{player.name}" ] = players_data_series[ data_selector ][ player.name ]
+                    #           output_data[ "max#{get_player_name( player_id )}" ] = players_data_series[ data_selector ][ get_player_name( player_id ) ]
+                    #       else
+                    #           output_data.merge!( players_data_series[ data_selector ].select{ |k, v| k == get_player_name( player_id ) or k == player.name } )
+                    #       end
+                    #   end
+
+                    #   output_file.chart( output_data,
+                    #                      type: [ :line, :line, :point, :point ],
+                    #                      line_widths: [ 2, 2, 1, 1 ],
+                    #                      labels: [ false, false, true, true ] )
+
+                    #   output_file.start_new_page()
+                end
+            end
+        end
+        puts "DONE (•̀o•́)ง"
     end
 end

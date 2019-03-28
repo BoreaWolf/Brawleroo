@@ -6,7 +6,9 @@
 #
 
 require "json"
+require "nokogiri"
 require "net/http"
+require "open-uri"
 require "uri"
 
 class WebsiteInspector
@@ -87,7 +89,7 @@ class WebsiteInspector
                     "Accept" => "application/json",
                     "Accept-Encoding" => "deflate",
                     "Accept-Language" => "en-GB,en;q=0.5",
-                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNyIsInV1aWQiOiI0ZDZjMzlkMS0yMWYwLTQyMWQtYmY5NS1iNTdiZTdkYzhhNmEiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1MzU5NjMwOCwiZXhwIjoxNTUzNjM5NTA4fQ.H9WWVriyvw65INuQAo29Rw9pychSNIYQjGr1WTuXFEg",
+                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNCIsInV1aWQiOiIyMmNjNmRhMy0yMzZmLTQ5MzQtYWIzYy1lYjU2OTc3MjY3ZDMiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1Mzc3MjY2NywiZXhwIjoxNTUzODE1ODY3fQ.VtiI7tAfJiUWdcbPFOGDHDCI7allc1WHv-1E5RDdkgU",
                     "Cache-Control" => "max-age=0",
                     "Connection" => "keep-alive",
                     #   "If-None-Match" => "W/\"65fe-B227HFGFKxtVZ0WCDrzCXFmnbTM\""

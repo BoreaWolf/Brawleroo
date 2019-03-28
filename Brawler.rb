@@ -5,34 +5,6 @@
 # Description: Classes for Brawlers, single and all together
 #
 
-# Rarities and list of known brawlers
-RARITY = [ "Common", "Rare", "Super Rare", "Epic", "Mythic", "Legendary" ]
-CHARS = [ [ "Shelly", 0, 0 ],
-          [ "Nita", 0, 8 ],
-          [ "Colt", 0, 1 ],
-          [ "Bull", 0, 2 ],
-          [ "Jessie", 0, 7 ],
-          [ "Brock", 0, 3 ],
-          [ "Dynamike", 0, 9 ],
-          [ "Bo", 0, 14 ],
-          [ "El Primo", 1, 10 ],
-          [ "Barley", 1, 6 ],
-          [ "Poco", 1, 13 ],
-          [ "Rico", 2, 4 ],
-          [ "Darryl", 2, 18 ],
-          [ "Penny", 2, 19 ],
-          [ "Carl", 2, 25 ],
-          [ "Piper", 3, 15 ],
-          [ "Pam", 3, 16 ],
-          [ "Frank", 3, 20 ],
-          [ "Mortis", 4, 11 ],
-          [ "Tara", 4, 17 ],
-          [ "Gene", 4, 21 ],
-          [ "Spike", 5, 5 ],
-          [ "Crow", 5, 12 ],
-          [ "Leon", 5, 23 ] ]
-BRAWLSTATS_ID_CONSTANT = 16000000
-
 def find_char_name_by_brawlstats_id( id_brawlstats )
     CHARS.each do |name, _, id|
         if id == ( id_brawlstats - BRAWLSTATS_ID_CONSTANT ) then
@@ -63,6 +35,10 @@ class Brawler
 
     def printable()
         return "#{@name} (#{@rarity}): #{@trophies.printable()}"
+    end
+
+    def export_to_csv()
+        return "#{@trophies.export_to_csv()}"
     end
 
     def self.compare( a, b )
@@ -111,6 +87,14 @@ class Brawlers
         result = "Brawler list (#{get_unlocked()}/#{CHARS.length}):\n"
         @brawler_list.each do |_, data|
             result +=  " - " + data.printable() + "\n"
+        end
+        return result
+    end
+
+    def export_to_csv()
+        result = ""
+        CHARS.each do |char_name, _, _|
+            result += "#{get_brawler( char_name ).export_to_csv()}\t"
         end
         return result
     end
