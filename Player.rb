@@ -71,6 +71,10 @@ class Player
         result += "#{brawlers.export_to_csv()}"
         return result
     end
+
+    def to_pdf_title_string()
+        return "#{name} [#{trophies.rank} @ #{trophies.trophies}]"
+    end
 end
 
 class Players
@@ -169,19 +173,29 @@ class Players
 
         # Creating all data used to print afterwards
         players_data_series = Hash.new
-        data_selectors = [ "trophies", "max_trophies" ]
+        data_selectors = [ "trophies", "max_trophies", "other" ]
         data_selectors.each do |data_selector|
             players_data_series[ data_selector ] = Hash.new
             @player_list.each do |player|
                 players_data_series[ data_selector ][ player.name ] = Hash.new
-                CHARS.each do |char_name, _, _|
-                    case data_selector
-                    when "trophies"
-                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
-                    when "max_trophies"
-                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.max_trophies
+                # Too many non relevant information
+                #   if data_selector == "other" then
+                #       players_data_series[ data_selector ][ player.name ] = Hash.new
+                #       players_data_series[ data_selector ][ player.name ][ "Total trophies" ] = player.trophies.trophies
+                #       players_data_series[ data_selector ][ player.name ][ "Highest trophies" ] = player.trophies.max_trophies
+                #       players_data_series[ data_selector ][ player.name ][ "3v3" ] = player.victories.trio
+                #       players_data_series[ data_selector ][ player.name ][ "Duo" ] = player.victories.duo
+                #       players_data_series[ data_selector ][ player.name ][ "Solo" ] = player.victories.solo
+                #   else
+                    CHARS.each do |char_name, _, _|
+                        case data_selector
+                        when "trophies"
+                            players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
+                        when "max_trophies"
+                            players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.max_trophies
+                        end
                     end
-                end
+                #   end
             end
         end
         
@@ -197,7 +211,13 @@ class Players
             @player_list.each do |player|
                 if player.id != player_id then
                     #   puts "Pre title: #{output_file.cursor} #{output_file.cursor.class}"
-                    output_file.text( "#{get_player_name( player_id )} [#{get_player_by_id( player_id ).trophies.trophies}] vs. #{player.name} [#{player.trophies.trophies}]", :align => :center )
+                    #   output_file.text( "#{get_player_name( player_id )} [#{get_player_by_id( player_id ).trophies.trophies}] vs. #{player.name} [#{player.trophies.trophies}]", :align => :center )
+                    output_file.text( "#{get_player_by_id( player_id ).to_pdf_title_string()} vs. #{player.to_pdf_title_string()}", :align => :center )
+
+                    # Too many not relevant information in this graph
+                    #   output_file.chart( players_data_series[ "other" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
+                    #   output_file.text( "General stats", :align => :center )
+
                     #   puts "Pre graph: #{output_file.cursor}"
                     output_file.chart( players_data_series[ "trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
                     #   puts "Pre caption: #{output_file.cursor}"
