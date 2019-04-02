@@ -32,5 +32,6 @@ end
 
 # Exporting data to csv file
 players.export_to_csv()
+players.update_players_csv_stats() if update
 players.create_graphs( ID_MINE )
 

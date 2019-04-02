@@ -33,6 +33,8 @@ class Player
         inspector = WebsiteInspector.new()
         #   inspector.read_stats_brawland( id, self )
         inspector.read_stats_brawlstats( @id, self, online )
+        puts "====================="
+        puts "#{self}"
     end
 
     def get_brawler( name )
@@ -50,6 +52,26 @@ class Player
 
     def printable_intro()
         return "#{@name} (##{@id}) #{@trophies.printable()}"
+    end
+
+    def update_csv_stats()
+        # Looking for the player file, if it doesn't exist it will get created
+        # Opening the file with append does what I need without checking the
+        # existence of the file
+        
+        # I could avoid printing the name and tag since the file is personal of
+        # that player, but in this way I have data format consistence through
+        # all the files
+        File.open( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_EXT}", "a" ) do |export_file|
+            export_file.write( "#{Time.now.strftime( "%Y/%m/%d_%H:%M" )}\t#{export_to_csv()}\n" )
+        end
+    end
+
+    def export_to_csv()
+        result = "#{name}\t#{id}\t#{trophies.export_to_csv()}\t"
+        result += "#{victories.export_to_csv()}\t"
+        result += "#{brawlers.export_to_csv()}"
+        return result
     end
 end
 
@@ -123,16 +145,22 @@ class Players
         return result
     end
 
+    def update_players_csv_stats()
+        print "Updating players stats."
+        @player_list.each do |player|
+            player.update_csv_stats()
+            print "."
+        end
+        puts "DONE (•̀o•́)ง"
+    end
+
     def export_to_csv()
-        print "Exporting data to '#{EXPORT_FILE_DIR}#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}'..."
-        File.open( "#{EXPORT_FILE_DIR}#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}", "w" ) do |export_file|
+        print "Exporting data to '#{EXPORT_FILE_DIR}/#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}'..."
+        File.open( "#{EXPORT_FILE_DIR}/#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}", "w" ) do |export_file|
             # Writing the header as first line of the document
             export_file.write( "#{EXPORT_FILE_HEADER_LINE}" )
             @player_list.each do |player|
-                player_stats = "#{player.name}\t#{player.id}\t#{player.trophies.export_to_csv()}\t"
-                player_stats += "#{player.victories.export_to_csv()}\t"
-                player_stats += "#{player.brawlers.export_to_csv()}"
-                export_file.write( "#{player_stats}\n" )
+                export_file.write( "#{player.export_to_csv()}\n" )
             end
         end
         puts "DONE (•̀o•́)ง"
@@ -171,7 +199,7 @@ class Players
             @player_list.each do |player|
                 if player.id != player_id then
                     #   puts "Pre title: #{output_file.cursor} #{output_file.cursor.class}"
-                    output_file.text( "#{get_player_name( player_id )} vs. #{player.name}", :align => :center )
+                    output_file.text( "#{get_player_name( player_id )} [#{get_player_by_id( player_id ).trophies.trophies}] vs. #{player.name} [#{player.trophies.trophies}]", :align => :center )
                     #   puts "Pre graph: #{output_file.cursor}"
                     output_file.chart( players_data_series[ "trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
                     #   puts "Pre caption: #{output_file.cursor}"

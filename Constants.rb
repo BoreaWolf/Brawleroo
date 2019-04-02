@@ -11,7 +11,7 @@ PLAYER_LINK = "#{WEBSITE_LINK}/player.php?tag="
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
-ID_OTHERS = [ "U29P28CU", "20CQGUQUP", "VQYLLURL", "2U29GP8P0", "PQJQPG2G", "2YV9P0JV8", "8YCYURYL", "J8PRC802", "2R20P2VC" ] #, "R0YLYCVL" ]
+ID_OTHERS = [ "U29P28CU", "20CQGUQUP", "VQYLLURL", "2U29GP8P0", "PQJQPG2G", "8YCYURYL", "J8PRC802", "2R20P2VC" , "2YV9P0JV8", "R0YLYCVL" ]
 IDS = [ ID_MINE, ID_OTHERS ].flatten
 DIR_WEBPAGES = "./Webpages"
 
@@ -83,8 +83,8 @@ PLAYER_RANKS = [ [ 0, "Unranked" ],
                  [ 14000, "All-Star V" ] ]
 
 # Export file constants
-EXPORT_FILE_DIR = "./"
-EXPORT_FILE_NAME = "exported_stats"
+EXPORT_FILE_DIR = "./Stats"
+EXPORT_FILE_NAME = "full_exported_stats"
 EXPORT_FILE_EXT = ".csv"
 
 # Redefinition of the constant is annoying

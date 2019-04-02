@@ -3,6 +3,8 @@ Webpages/*
 !Webpages/.gitkeep
 Comparisons/*
 !Comparisons/.gitkeep
+Stats/*
+!Stats/.gitkeep
 
 # Temporary files
 **/*.swp

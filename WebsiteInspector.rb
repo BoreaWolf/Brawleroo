@@ -89,7 +89,7 @@ class WebsiteInspector
                     "Accept" => "application/json",
                     "Accept-Encoding" => "deflate",
                     "Accept-Language" => "en-GB,en;q=0.5",
-                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNCIsInV1aWQiOiIyMmNjNmRhMy0yMzZmLTQ5MzQtYWIzYy1lYjU2OTc3MjY3ZDMiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1Mzc3MjY2NywiZXhwIjoxNTUzODE1ODY3fQ.VtiI7tAfJiUWdcbPFOGDHDCI7allc1WHv-1E5RDdkgU",
+                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNSIsInV1aWQiOiIzN2UzYzVlNC0yNjdjLTQ0MTAtOTVkNi1kNDA4ZjU2MDRmMDAiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1NDE5OTIwNSwiZXhwIjoxNTU0MjQyNDA1fQ.Mt5oAMVE9EpzBUInFkiY2zWGNlpJ7KY1avyNTg_kMxs",
                     "Cache-Control" => "max-age=0",
                     "Connection" => "keep-alive",
                     #   "If-None-Match" => "W/\"65fe-B227HFGFKxtVZ0WCDrzCXFmnbTM\""
@@ -134,8 +134,22 @@ class WebsiteInspector
 
         # Composing the info of the player
         player.id = player_data[ "hashtag" ]
-        player.name = player_data[ "name" ]
-        
+        #   player.name = player_data[ "name" ]
+        # TODO: Temporary fix for extra font characters that cannot be
+        # represented in a pdf with easy font/encoding
+        player.name = ""
+        player_data[ "name" ].split( "" ).each do |char|
+            # If the character bytes are longer than one then the character is
+            # special and requires special font to be represented in a pdf file
+            if char.bytes.length == 1 then
+                player.name += char
+            end
+        end
+        puts "#{player.name}"
+        # If the name is empty, all characters have benn removed, then I use the
+        # tag surrounded by angle brackets <>
+        player.name = "<#{player.id}>" if player.name.empty?
+        puts "#{player.name}"
 
         player.trophies.update_trophies( player_data[ "trophies" ], player_data[ "highestTrophies" ] )
         player.experience.update_total( player_data[ "totalExperience" ] )
