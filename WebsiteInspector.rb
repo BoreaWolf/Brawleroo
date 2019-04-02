@@ -145,11 +145,9 @@ class WebsiteInspector
                 player.name += char
             end
         end
-        puts "#{player.name}"
         # If the name is empty, all characters have benn removed, then I use the
         # tag surrounded by angle brackets <>
         player.name = "<#{player.id}>" if player.name.empty?
-        puts "#{player.name}"
 
         player.trophies.update_trophies( player_data[ "trophies" ], player_data[ "highestTrophies" ] )
         player.experience.update_total( player_data[ "totalExperience" ] )

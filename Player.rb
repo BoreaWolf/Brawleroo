@@ -33,8 +33,6 @@ class Player
         inspector = WebsiteInspector.new()
         #   inspector.read_stats_brawland( id, self )
         inspector.read_stats_brawlstats( @id, self, online )
-        puts "====================="
-        puts "#{self}"
     end
 
     def get_brawler( name )
