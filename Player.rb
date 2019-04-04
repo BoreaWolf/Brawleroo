@@ -178,34 +178,69 @@ class Players
             players_data_series[ data_selector ] = Hash.new
             @player_list.each do |player|
                 players_data_series[ data_selector ][ player.name ] = Hash.new
-                # Too many non relevant information
-                #   if data_selector == "other" then
-                #       players_data_series[ data_selector ][ player.name ] = Hash.new
-                #       players_data_series[ data_selector ][ player.name ][ "Total trophies" ] = player.trophies.trophies
-                #       players_data_series[ data_selector ][ player.name ][ "Highest trophies" ] = player.trophies.max_trophies
-                #       players_data_series[ data_selector ][ player.name ][ "3v3" ] = player.victories.trio
-                #       players_data_series[ data_selector ][ player.name ][ "Duo" ] = player.victories.duo
-                #       players_data_series[ data_selector ][ player.name ][ "Solo" ] = player.victories.solo
-                #   else
-                    CHARS.each do |char_name, _, _|
-                        case data_selector
-                        when "trophies"
-                            players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
-                        when "max_trophies"
-                            players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.max_trophies
-                        end
+                CHARS.each do |char_name, _, _|
+                    case data_selector
+                    when "trophies"
+                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
+                    when "max_trophies"
+                        players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.max_trophies
                     end
-                #   end
+                end
             end
         end
         
         # Player page
 
+        # Personal progression graphs
+        # Reading the file of the player
+        # Each line of the file corresponds to a day of data
+        # Need to create an array of characters with the data dividede by day
+        data_selectors = [ "Rank", "Trophies", "Max" ]
+        player_progression = Hash.new
+        CHARS.each do |char_name, _, _|
+            player_progression[ char_name ] = Hash.new
+            data_selectors.each do |data_selector|
+                player_progression[ char_name ][ data_selector ] = Hash.new
+            end
+        end
+        File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
+            daily_data = daily_line.match( REGEX_FILE_LINE_STATS )
+            # If I leave only the date, updates happening on the same day will
+            # be ignored
+            #   current_date = daily_data[ 1 ].match( REGEX_DATE_ONLY )[ 0 ]
+            current_date = daily_data[ 1 ]
+            CHARS.each do |char_name, _, _|
+                data_selectors.each do |data_selector|
+                    player_progression[ char_name ][ data_selector ][ current_date ] = Hash.new
+                end
+            end
+
+            # Working only on the 
+            daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
+                char_data.each_with_index do |char_stat, j|
+                    player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
+                end
+            end
+        end
+        
         # Comparisons with other players, one page per player
         # Creating a graph with all brawlers on the x-axis and their trophies on
         # the y-axis
         Prawn::Document.generate( "#{PDF_FILE_DIR}/#{get_player_name( player_id )}#{PDF_FILE_EXT}",
                                   :page_layout => :landscape ) do |output_file|
+            # Personal progression graphs for each brawler
+            output_file.text( "#{get_player_name( player_id )}", :align => :center )
+
+            CHARS.each do |char_name, _, _|
+                output_file.text( "#{char_name} - Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ] }", :align => :center )
+                output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
+                                   #    type: :line,
+                                   type: :two_axis,
+                                   line_widths: [ 3, 1 ],
+                                   labels: [ true, true ] )
+                output_file.start_new_page()
+            end
+
             # Cycling on the brawlers
             # data = { player_id => { x => y, ... }, ... }
             @player_list.each do |player|

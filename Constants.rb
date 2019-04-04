@@ -20,6 +20,9 @@ REGEX_TROPHIES = /rank:\s*([a-zA-Z\s]*)\s*(\d+)\s*\/\s*(\d+)/
 REGEX_EXPERIENCE = /level:\s*(\d+)[^0-9]*(\d+)[^0-9]*\d+\s*(\d+)[^0-9]*(\d+)/
 REGEX_VICTORIES = /3v3[^0-9]*(\d+)[^0-9]*(\d+)[^0-9]*(\d+)/
 REGEX_BRAWLER = /([^0-9]*)\s+(\d+)\s*(\d+)[\s\/]*(\d+)/
+REGEX_FILE_LINE_STATS = /([^\t]*)\t([^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*)\t((([0-9]+\t[0-9]+\t[0-9]+)\t)*)/
+REGEX_FILE_LINE_CHAR_STATS = /((?<rank>[0-9]+)\t(?<trophies>[0-9]+)\t(?<max>[0-9]+))\t/
+REGEX_DATE_ONLY = /([0-9\/]+)/
 
 
 # Rarities and list of known brawlers

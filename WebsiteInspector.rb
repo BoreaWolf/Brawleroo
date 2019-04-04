@@ -89,7 +89,7 @@ class WebsiteInspector
                     "Accept" => "application/json",
                     "Accept-Encoding" => "deflate",
                     "Accept-Language" => "en-GB,en;q=0.5",
-                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNSIsInV1aWQiOiIzN2UzYzVlNC0yNjdjLTQ0MTAtOTVkNi1kNDA4ZjU2MDRmMDAiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1NDE5OTIwNSwiZXhwIjoxNTU0MjQyNDA1fQ.Mt5oAMVE9EpzBUInFkiY2zWGNlpJ7KY1avyNTg_kMxs",
+                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNSIsInV1aWQiOiIyZmVjZDJkNS0wNmYxLTQ3MTYtOGYzNC03NWI5OGFmMmNhMWMiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1NDM3MzEwMSwiZXhwIjoxNTU0NDE2MzAxfQ.yATLibLJaQw76ehVMjKPP7UdzIbabDqEl43XH1xqKKY",
                     "Cache-Control" => "max-age=0",
                     "Connection" => "keep-alive",
                     #   "If-None-Match" => "W/\"65fe-B227HFGFKxtVZ0WCDrzCXFmnbTM\""
