@@ -196,33 +196,44 @@ class Players
         # Each line of the file corresponds to a day of data
         # Need to create an array of characters with the data dividede by day
         data_selectors = [ "Rank", "Trophies", "Max" ]
+        char_names = [ get_player_name( player_id ), CHARS.map{ |x| x[ 0 ] } ].flatten
         player_progression = Hash.new
-        CHARS.each do |char_name, _, _|
+        char_names.each do |char_name|
             player_progression[ char_name ] = Hash.new
             data_selectors.each do |data_selector|
                 player_progression[ char_name ][ data_selector ] = Hash.new
             end
         end
-        File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
+
+        # NOTE: The problem is probably the labels being too long and unable to
+        # fit more than 15 in the same page
+        # The graphs can contain a maximum of 15 data elements on the x-axis
+        # I will only read the last 15 lines of the file using a unix command
+        # and then splitting the returned string into an array of the lines
+        lines = `tail -n #{LINES_TO_READ} #{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}`
+        #   File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
+        lines.split( "\n" ).each do |daily_line|
             daily_data = daily_line.match( REGEX_FILE_LINE_STATS )
             # If I leave only the date, updates happening on the same day will
             # be ignored
             #   current_date = daily_data[ 1 ].match( REGEX_DATE_ONLY )[ 0 ]
             current_date = daily_data[ 1 ]
-            CHARS.each do |char_name, _, _|
+            char_names.each do |char_name|
                 data_selectors.each do |data_selector|
-                    player_progression[ char_name ][ data_selector ][ current_date ] = Hash.new
+                    player_progression[ char_name ][ data_selector ][ current_date ] = 0
                 end
             end
 
-            # Working only on the 
+            # Working only on the third match of the daily data
+            # TODO: Player rank is not correct at the moment
             daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
                 char_data.each_with_index do |char_stat, j|
                     player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
+                    player_progression[ get_player_name( player_id ) ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
                 end
             end
         end
-        
+
         # Comparisons with other players, one page per player
         # Creating a graph with all brawlers on the x-axis and their trophies on
         # the y-axis
@@ -231,12 +242,18 @@ class Players
             # Personal progression graphs for each brawler
             output_file.text( "#{get_player_name( player_id )}", :align => :center )
 
+            output_file.text( "Trophies", :align => :center )
+            output_file.chart( { "Trophies" => player_progression[ get_player_name( player_id ) ][ "Trophies" ] },
+                               legend: false,
+                               labels: [ true ] )
+            output_file.start_new_page()
+
             CHARS.each do |char_name, _, _|
                 output_file.text( "#{char_name} - Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ] }", :align => :center )
                 output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
-                                   #    type: :line,
-                                   type: :two_axis,
-                                   line_widths: [ 3, 1 ],
+                                   type: :line,
+                                   #    type: :two_axis,
+                                   line_widths: [ 1, 2 ],
                                    labels: [ true, true ] )
                 output_file.start_new_page()
             end
