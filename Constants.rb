@@ -8,6 +8,8 @@
 # Constants
 WEBSITE_LINK = "https://brawland.com"
 PLAYER_LINK = "#{WEBSITE_LINK}/player.php?tag="
+HERO_ICON_LINK = "https://brawlstats.com/dist/hero_icon_"
+HERO_ICON_EXT = ".png"
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
@@ -120,7 +122,9 @@ IMAGES_DIR = "./Images"
 PAGE_DIM = [ 1000, 700 ]
 PAGE_MARGIN = 36
 REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARGIN ]
-RATE_BRAWLER_INFO = 0.5
+RATE_BRAWLER_NAME = 0.05
+RATE_BRAWLER_INFO = 0.4
+RATE_BRAWLER_GRAPH = 1 - RATE_BRAWLER_NAME - RATE_BRAWLER_INFO
 
 # Redefinition of the constant is annoying
 # Telling the interpreter to ignore these warnings

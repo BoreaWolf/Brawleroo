@@ -261,44 +261,46 @@ class Players
             # Creating the graphs based on their ordered list
             # TODO: Add the picture of the brawler before the graph
             ordered_chars.each do |char_name, _, _|
-                #   output_file.text( "#{char_name} - Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ] }", :align => :left )
-                output_file.text( "#{char_name}", :align => :center )
-
+                # Boxes dimensions of these pages
+                name_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_NAME ]
+                graph_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_GRAPH ]
                 info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
-                puts "#{info_box_size}"
+                split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
 
-                output_file.fill_color( "111111" )
-                output_file.circle( [ 0, output_file.cursor ], 5 )
-                output_file.fill_color( "333333" )
-                output_file.fill_and_stroke_rectangle( [ 0, output_file.cursor ], info_box_size[ 0 ], info_box_size[ 1 ] )
+                output_file.stroke_color( "0000FF" )
 
-                output_file.bounding_box( [ 0, output_file.cursor ], :width => info_box_size[ 0 ], :height => info_box_size[ 1 ] ) do
-                    info_text_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
-                    output_file.fill_color( "888888" )
-                    output_file.fill_and_stroke_rectangle( [ 0, output_file.cursor ], info_text_size[ 0 ], info_text_size[ 1 ] )
-                    output_file.fill_color( "000000" )
-
-                    output_file.bounding_box( [ 0, output_file.cursor ], :width => info_text_size[ 0 ], :height => info_text_size[ 1 ] ) do
-                        output_file.text( "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}", :align => :center )
-                        output_file.text( "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}", :align => :center )
-                        output_file.text( "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}", :align => :center )
-                    end
-                    info_image_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
-                    output_file.fill_color( "FF0000" )
-                    output_file.fill_and_stroke_rectangle( [ 0 + info_text_size[ 0 ], output_file.cursor ], info_image_size[ 0 ], info_image_size[ 1 ] )
-                    output_file.bounding_box( [ 0, output_file.cursor + info_text_size[ 1 ] ], :width => info_image_size[ 0 ], :height => info_image_size[ 1 ]  ) do 
-                        if char_name == "Jessie" then
-                            output_file.image( "#{IMAGES_DIR}/#{char_name}.png", :position => :right, :width => 146 )
-                        end
-                    end
+                # Brawler name box
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => name_box_size[ 0 ], :height => name_box_size[ 1 ] ) do
+                    output_file.stroke_bounds
+                    output_file.text( "#{char_name}", :align => :center )
                 end
 
+                # Written info box
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
+                    output_file.stroke_bounds
 
-                output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
-                                   type: :line,
-                                   #    type: :two_axis,
-                                   line_widths: [ 1, 2 ],
-                                   labels: [ true, true ] )
+                    output_file.text( "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}", :align => :center )
+                    output_file.text( "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}", :align => :center )
+                    output_file.text( "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}", :align => :center )
+                end
+
+                # Brawler image
+                output_file.bounding_box( [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
+                    output_file.stroke_bounds
+                    output_file.image( "#{IMAGES_DIR}/hero_#{char_name.downcase}.png", :position => :center, :height => split_box_size[ 1 ] / 2 )
+                end
+
+                # Brawler progression graph
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => graph_box_size[ 0 ], :height => graph_box_size[ 1 ] ) do
+                    output_file.stroke_bounds
+                    output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
+                                       type: :line,
+                                       #    type: :two_axis,
+                                       line_widths: [ 1, 2 ],
+                                       labels: [ true, true ] )
+                end
+
+                # Starting a new page for the next brawler
                 output_file.start_new_page()
             end
 
@@ -354,7 +356,7 @@ class Players
                     #                      line_widths: [ 2, 2, 1, 1 ],
                     #                      labels: [ false, false, true, true ] )
 
-                    #   output_file.start_new_page()
+                    output_file.start_new_page()
                 end
             end
         end
