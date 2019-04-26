@@ -171,6 +171,11 @@ class Players
     def create_graphs( player_id )
         print "Creating cute graphs for the player '#{player_id}'..."
 
+        # Ordering the brawlers based on their rarity first and on their id
+        # afterwards
+        # Useful to have clean graphs based on the rarity of the brawlers
+        ordered_chars = CHARS.sort_by{ |char| [ char[ 1 ], char[ 2 ] ] }
+
         # Creating all data used to print afterwards
         players_data_series = Hash.new
         data_selectors = [ "trophies", "max_trophies", "other" ]
@@ -178,7 +183,7 @@ class Players
             players_data_series[ data_selector ] = Hash.new
             @player_list.each do |player|
                 players_data_series[ data_selector ][ player.name ] = Hash.new
-                CHARS.each do |char_name, _, _|
+                ordered_chars.each do |char_name, _, _|
                     case data_selector
                     when "trophies"
                         players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
@@ -226,6 +231,9 @@ class Players
 
             # Working only on the third match of the daily data
             # TODO: Player rank is not correct at the moment
+            # When reading the data from file I have to keep the order of the
+            # CHARS structure to respect eventual new brawlers and not confuse
+            # their data with others
             daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
                 char_data.each_with_index do |char_stat, j|
                     player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
@@ -248,7 +256,9 @@ class Players
                                labels: [ true ] )
             output_file.start_new_page()
 
-            CHARS.each do |char_name, _, _|
+            # Creating the graphs based on their ordered list
+            # TODO: Add the picture of the brawler before the graph
+            ordered_chars.each do |char_name, char_rarity, _|
                 output_file.text( "#{char_name} - Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ] }", :align => :center )
                 output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
                                    type: :line,

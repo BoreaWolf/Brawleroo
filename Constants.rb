@@ -15,6 +15,7 @@ ID_OTHERS = [ "U29P28CU",
               "20CQGUQUP",
               "VQYLLURL",
               "2U29GP8P0",
+              "8LY9VP2UV",
               "PQJQPG2G",
               "8YCYURYL",
               "J8PRC802",
@@ -24,7 +25,9 @@ ID_OTHERS = [ "U29P28CU",
               "8CJ090LV",
               "2PJ09CGYR",
               "LL0J2YG",
-              "R0YLYCVL" ]
+              "R0YLYCVL",
+              "28LUY98",
+              "2L892GP" ]
 
 IDS = [ ID_MINE, ID_OTHERS ].flatten
 DIR_WEBPAGES = "./Webpages"
@@ -41,6 +44,13 @@ REGEX_DATE_ONLY = /([0-9\/]+)/
 
 # Rarities and list of known brawlers
 RARITY = [ "Common", "Rare", "Super Rare", "Epic", "Mythic", "Legendary" ]
+#   Rarity colors if they would ever be needed
+#   RARITY = [ [ "Common", "94D7F4" ],
+#              [ "Rare", "2EDD16" ],
+#              [ "Super Rare", "008FFA" ],
+#              [ "Epic", "B116ED" ],
+#              [ "Mythic", "D6001A" ],
+#              [ "Legendary" "FFF11E" ] ]
 CHARS = [ [ "Shelly", 0, 0 ],
           [ "Nita", 0, 8 ],
           [ "Colt", 0, 1 ],
@@ -64,7 +74,8 @@ CHARS = [ [ "Shelly", 0, 0 ],
           [ "Gene", 4, 21 ],
           [ "Spike", 5, 5 ],
           [ "Crow", 5, 12 ],
-          [ "Leon", 5, 23 ] ]
+          [ "Leon", 5, 23 ],
+          [ "Rosa", 1, 24 ] ]
 BRAWLSTATS_ID_CONSTANT = 16000000
 
 # Player ranks divided by trophies
