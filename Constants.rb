@@ -116,6 +116,12 @@ EXPORT_FILE_NAME = "full_exported_stats"
 EXPORT_FILE_EXT = ".csv"
 LINES_TO_READ = 15
 
+IMAGES_DIR = "./Images"
+PAGE_DIM = [ 1000, 700 ]
+PAGE_MARGIN = 36
+REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARGIN ]
+RATE_BRAWLER_INFO = 0.5
+
 # Redefinition of the constant is annoying
 # Telling the interpreter to ignore these warnings
 warn_level = $VERBOSE
