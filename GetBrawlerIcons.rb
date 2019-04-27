@@ -19,8 +19,8 @@ def get_brawler_icons()
         dev_name = "barrelbot" if char_name == "Darryl"
         dev_name = "mj" if char_name == "Pam"
         dev_name = "taro" if char_name == "Tara"
-        open( "#{HERO_ICON_LINK}#{dev_name}#{HERO_ICON_EXT}" ) do |image_link|
-            File.open( "#{IMAGES_DIR}/hero_#{char_name.downcase}#{HERO_ICON_EXT}", "w" ) do |image|
+        open( "#{BRAWLER_ICON_LINK}#{dev_name}#{BRAWLER_ICON_EXT}" ) do |image_link|
+            File.open( "#{IMAGES_DIR}/hero_#{char_name.downcase.gsub( " ", "_" )}#{BRAWLER_ICON_EXT}", "w" ) do |image|
                 image.puts( image_link.read() )
             end
         end

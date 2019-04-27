@@ -8,8 +8,8 @@
 # Constants
 WEBSITE_LINK = "https://brawland.com"
 PLAYER_LINK = "#{WEBSITE_LINK}/player.php?tag="
-HERO_ICON_LINK = "https://brawlstats.com/dist/hero_icon_"
-HERO_ICON_EXT = ".png"
+BRAWLER_ICON_LINK = "https://brawlstats.com/dist/hero_icon_"
+BRAWLER_ICON_EXT = ".png"
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
@@ -47,12 +47,12 @@ REGEX_DATE_ONLY = /([0-9\/]+)/
 # Rarities and list of known brawlers
 RARITY = [ "Common", "Rare", "Super Rare", "Epic", "Mythic", "Legendary" ]
 #   Rarity colors if they would ever be needed
-#   RARITY = [ [ "Common", "94D7F4" ],
-#              [ "Rare", "2EDD16" ],
-#              [ "Super Rare", "008FFA" ],
-#              [ "Epic", "B116ED" ],
-#              [ "Mythic", "D6001A" ],
-#              [ "Legendary" "FFF11E" ] ]
+RARITY_COLORS = { "Common" => "94D7F4",
+                  "Rare" => "2EDD16",
+                  "Super Rare" => "008FFA",
+                  "Epic" => "B116ED",
+                  "Mythic" => "D6001A",
+                  "Legendary" => "FFF11E" }
 CHARS = [ [ "Shelly", 0, 0 ],
           [ "Nita", 0, 8 ],
           [ "Colt", 0, 1 ],
@@ -123,7 +123,7 @@ PAGE_DIM = [ 1000, 700 ]
 PAGE_MARGIN = 36
 REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARGIN ]
 RATE_BRAWLER_NAME = 0.05
-RATE_BRAWLER_INFO = 0.4
+RATE_BRAWLER_INFO = 0.5
 RATE_BRAWLER_GRAPH = 1 - RATE_BRAWLER_NAME - RATE_BRAWLER_INFO
 
 # Redefinition of the constant is annoying

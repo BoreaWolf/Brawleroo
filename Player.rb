@@ -258,14 +258,16 @@ class Players
                                labels: [ true ] )
             output_file.start_new_page()
 
+            # Pages for each brawler with information and progression graph
+            # Boxes dimensions of these pages
+            name_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_NAME ]
+            graph_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_GRAPH ]
+            info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
+            split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
+            icon_width = split_box_size[ 0 ] * 0.50
+            icon_height = split_box_size[ 1 ] * 0.65
             # Creating the graphs based on their ordered list
-            # TODO: Add the picture of the brawler before the graph
-            ordered_chars.each do |char_name, _, _|
-                # Boxes dimensions of these pages
-                name_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_NAME ]
-                graph_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_GRAPH ]
-                info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
-                split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
+            ordered_chars.each do |char_name, char_rarity, _|
 
                 output_file.stroke_color( "0000FF" )
 
@@ -286,8 +288,18 @@ class Players
 
                 # Brawler image
                 output_file.bounding_box( [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
-                    output_file.stroke_bounds
-                    output_file.image( "#{IMAGES_DIR}/hero_#{char_name.downcase}.png", :position => :center, :height => split_box_size[ 1 ] / 2 )
+                    output_file.stroke_bounds()
+                    output_file.ellipse( [ split_box_size[ 0 ] / 2, split_box_size[ 1 ] / 2 ],
+                                         Math.sqrt( 2 ) * icon_width / 2,
+                                         Math.sqrt( 2 ) * icon_height / 2 )
+                    output_file.fill_color( RARITY_COLORS[ RARITY[ char_rarity ] ] )
+                    output_file.fill()
+                    output_file.image( #    "#{IMAGES_DIR}/hero_#{char_name.downcase}.png",
+                                      "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png",
+                                       :at => [ ( split_box_size[ 0 ] - icon_width ) / 2, ( split_box_size[ 1 ] + icon_height ) / 2 ],
+                                       :width => icon_width,
+                                       :height => icon_height )
+                    output_file.fill_color( "000000" )
                 end
 
                 # Brawler progression graph
