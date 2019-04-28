@@ -266,6 +266,8 @@ class Players
             split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
             icon_width = split_box_size[ 0 ] * 0.50
             icon_height = split_box_size[ 1 ] * 0.65
+            icon_pad = [ icon_width, icon_height ].max * 0.10
+            puts "#{name_box_size}"
             # Creating the graphs based on their ordered list
             ordered_chars.each do |char_name, char_rarity, _|
 
@@ -274,16 +276,29 @@ class Players
                 # Brawler name box
                 output_file.bounding_box( [ 0, output_file.cursor ], :width => name_box_size[ 0 ], :height => name_box_size[ 1 ] ) do
                     output_file.stroke_bounds
-                    output_file.text( "#{char_name}", :align => :center )
+                    output_file.pad_top( name_box_size[ 1 ] / 3 ) do
+                        output_file.text( "#{char_name}", :align => :center, :size => name_box_size[ 1 ] / 2 )
+                    end
                 end
 
                 # Written info box
                 output_file.bounding_box( [ 0, output_file.cursor ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
                     output_file.stroke_bounds
 
-                    output_file.text( "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}", :align => :center )
-                    output_file.text( "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}", :align => :center )
-                    output_file.text( "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}", :align => :center )
+                    info_text_font_size = 12
+                    info_text_pad = 15
+                    info_text = [ "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}",
+                                  "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}",
+                                  "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}" ]
+                    top_space = ( split_box_size[ 1 ] + info_text.size * info_text_font_size + ( info_text.size - 1 ) * info_text_pad ) / 2
+                    puts "Top space of #{top_space} over size of #{split_box_size[ 1 ]}"
+
+                    output_file.pad_top( top_space ) do
+                        info_text.each do |text|
+                            output_file.text( text, :align => :center, :size => info_text_font_size )
+                            #   output_file.
+                        end
+                    end
                 end
 
                 # Brawler image
@@ -296,9 +311,9 @@ class Players
                     output_file.fill()
                     output_file.image( #    "#{IMAGES_DIR}/hero_#{char_name.downcase}.png",
                                       "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png",
-                                       :at => [ ( split_box_size[ 0 ] - icon_width ) / 2, ( split_box_size[ 1 ] + icon_height ) / 2 ],
-                                       :width => icon_width,
-                                       :height => icon_height )
+                                       :at => [ ( split_box_size[ 0 ] - icon_width + icon_pad ) / 2, ( split_box_size[ 1 ] + icon_height - icon_pad ) / 2 ],
+                                       :width => icon_width - icon_pad,
+                                       :height => icon_height - icon_pad )
                     output_file.fill_color( "000000" )
                 end
 
