@@ -9,7 +9,10 @@ require "json"
 require "nokogiri"
 require "net/http"
 require "open-uri"
+require "time"
 require "uri"
+
+require "selenium-webdriver"
 
 class WebsiteInspector
 
@@ -61,70 +64,32 @@ class WebsiteInspector
     end
     
     def read_stats_brawlstats( id, player, online )
+
         # For this website I need to send two requests: OPTIONS and GET
-        #   if not File.exists?( "#{DIR_WEBPAGES}/#{id}.brawlstats" ) then
         if online or not File.exists?( "#{DIR_WEBPAGES}/#{id}.brawlstats" ) then
             puts "Saving locally information about player #{id}..."
 
-            #   puts "WebsiteInspector::read_stats_brawlstats '#{id}' '#{player}'"
-            uri = URI( "https://api.brawlstats.com/v6/players/profiles/#{id}" )
-            # TODO: Find a way to get the Authorization value from the cookies
+            uri = URI( "#{WEBSITE_BRAWLSTATS_API}/#{id}" )
             # Request headers
-            initheader_options =
-                {
-                    "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-                    "Accept-Encoding" => "gzip, deflate, br",
-                    "Accept-Language" => "en-GB,en;q=0.5",
-                    "Access-Control-Request-Headers" => "authorization",
-                    "Access-Control-Request-Method" => "GET",
-                    "Cache-Control" => "max-age=0",
-                    "Connection" => "keep-alive"
-                    #   "Host" => "api.brawlstars.com",
-                    #   "Origin" => "https://brawlstats.com",
-                    #   "Referer" => "https://brawlstats.com/profile/#{id}",
-                    #   "TE" => "Trailers"
-                }
             initheader_get =
                 {
                     "Accept" => "application/json",
                     "Accept-Encoding" => "deflate",
                     "Accept-Language" => "en-GB,en;q=0.5",
-                    "Authorization" => "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpcEFkZHJlc3MiOiIxNDMuMjM5LjkuNCIsInV1aWQiOiJkYWM0ODc5OC05MDRhLTQ2YWItODZmMy1iYTVjMzA1M2U4YjUiLCJyb2xlcyI6WyJ2aXNpdG9yIl0sImlhdCI6MTU1NjI2NzYzNSwiZXhwIjoxNTU2MzEwODM1fQ.POLPrzd2IkGGL8uyT0vc9dN69CIeAorzODML2l6Edms",
+                    "Authorization" => "Bearer #{get_token()}",
                     "Cache-Control" => "max-age=0",
-                    "Connection" => "keep-alive",
-                    #   "If-None-Match" => "W/\"65fe-B227HFGFKxtVZ0WCDrzCXFmnbTM\""
-
+                    "Connection" => "keep-alive"
+                    #   "If-None-Match" => "W/\"8d21-gZoGlc23SWuTVuI9b/BOGP4IAl4"
                 }
-            #   puts "#{uri} - #{initheader}"
-
-            #   res = Net::HTTP::Options.new( uri, initheader )
-            #   puts "#{res}"
-
-            #   req = Net::HTTP::Options.new( uri, initheader )
-            #   #   req['If-Modified-Since'] = file.mtime.rfc2822
 
             Net::HTTP.start( uri.hostname, uri.port, :use_ssl => true ) do |http|
-                #   sbra = http.options( uri, initheader_options )
-                #   puts "'#{sbra}' '#{sbra.message}' '#{sbra.body()}' '#{sbra.uri}'"
-                #   sbra.each do |k,v|
-                #       puts "#{k} => #{v}"
-                #   end
-
+                # Requesting the page with the generated header
                 res = http.get( uri, initheader_get )
-                #   puts "'#{res}' '#{res.message}' '#{res.body()}' '#{res.uri}'"
-                #   res.each do |k,v|
-                #       puts "#{k} => #{v}"
-                #   end
 
                 # Saving JSON data on file
-                save_file = File.open( "#{DIR_WEBPAGES}/#{id}.brawlstats", "w" )
-                save_file.write( res.body )
-                save_file.close
-
-                #   puts "'#{sbre}'\n'#{sbre.message}'\n'#{sbre.body()}'\n'#{sbre.uri}'"
-                #   sbre.each do |k,v|
-                #       puts "#{k} => #{v}"
-                #   end
+                File.open( "#{DIR_WEBPAGES}/#{id}.brawlstats", "w" ) do |save_file|
+                    save_file.write( res.body )
+                end
             end
         end
 
@@ -155,7 +120,23 @@ class WebsiteInspector
         player_data[ "brawlers" ].each do |brawler|
             player.brawlers.update_brawler( brawler[ "brawlerId" ], [ brawler[ "level" ], brawler[ "currentTrophies" ], brawler[ "highestTrophies" ] ] )
         end
-
     end
 
+    def get_token()
+        # Reading the local token file if it is expired then I will get a
+        # new one
+        if not File.exist?( TOKEN_LOCAL_FILE ) or Time.parse( File.open( TOKEN_LOCAL_FILE, &:readline ) ) < Time.now() then
+            File.open( TOKEN_LOCAL_FILE, "w" ) do |token_file|
+                # Opening the webpage to let it create the token needed to get
+                # authenticated from the server
+                driver = Selenium::WebDriver.for :firefox #assuming you're using firefox
+                driver.get( WEBSITE_BRAWLSTATS )
+                token_file.puts "#{Time.now() + TOKEN_EXPIRE_TIME}"
+                token_file.puts "#{driver.local_storage[ "token" ]}"
+            end
+        end
+
+        # Reading the second line of the file and returning the requested token
+        return File.open( TOKEN_LOCAL_FILE, "r" ).readlines()[ 1 ]
+    end
 end

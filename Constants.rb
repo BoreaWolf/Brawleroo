@@ -6,8 +6,15 @@
 #
 
 # Constants
+DIR_WEBPAGES = "./Webpages"
 WEBSITE_LINK = "https://brawland.com"
 PLAYER_LINK = "#{WEBSITE_LINK}/player.php?tag="
+WEBSITE_BRAWLSTATS = "https://brawlstats.com"
+WEBSITE_BRAWLSTATS_API = "https://api.brawlstats.com/v6/players/profiles"
+# Expire time of 6 hours
+TOKEN_EXPIRE_TIME = 6 * 60 * 60
+TOKEN_LOCAL_FILE = "#{DIR_WEBPAGES}/token.local"
+
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
@@ -16,6 +23,7 @@ ID_OTHERS = [ "U29P28CU",
               "VQYLLURL",
               "2U29GP8P0",
               "8LY9VP2UV",
+              "2V9L0U29",
               "PQJQPG2G",
               "8YCYURYL",
               "J8PRC802",
@@ -30,7 +38,6 @@ ID_OTHERS = [ "U29P28CU",
               "2L892GP" ]
 
 IDS = [ ID_MINE, ID_OTHERS ].flatten
-DIR_WEBPAGES = "./Webpages"
 
 # Regex
 REGEX_TROPHIES = /rank:\s*([a-zA-Z\s]*)\s*(\d+)\s*\/\s*(\d+)/
