@@ -112,6 +112,9 @@ PLAYER_RANKS = [ [ 0, "Unranked" ],
                  [ 13000, "All-Star IV" ],
                  [ 14000, "All-Star V" ] ]
 
+# The rank it self is the index of the array + 1
+BRAWLER_RANKS = [ 0, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160, 180, 220, 260, 300, 340, 380, 420, 460, 500 ]
+
 # Export file constants
 EXPORT_FILE_DIR = "./Stats"
 EXPORT_FILE_NAME = "full_exported_stats"
@@ -122,9 +125,10 @@ IMAGES_DIR = "./Images"
 PAGE_DIM = [ 1000, 700 ]
 PAGE_MARGIN = 36
 REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARGIN ]
-RATE_BRAWLER_NAME = 0.05
+RATE_BRAWLER_NAME = 0.1
 RATE_BRAWLER_INFO = 0.45
 RATE_BRAWLER_GRAPH = 1 - RATE_BRAWLER_NAME - RATE_BRAWLER_INFO
+GRAPH_TIME_FORMAT = "%d %b %R"
 
 # Redefinition of the constant is annoying
 # Telling the interpreter to ignore these warnings
@@ -132,10 +136,14 @@ warn_level = $VERBOSE
 $VERBOSE = nil
 EXPORT_FILE_HEADER_LINE = "Name\t#\tRank\tTrophies\tMax Trophies\t3v3\t2v2\t1v1\t"
 CHARS.each do |char|
-    EXPORT_FILE_HEADER_LINE += "#{char[ 0 ]}'s Rank\t#{char[ 0 ]}'s Trophies\t#{char[ 0 ]}'s Max Trophies\t"
+    EXPORT_FILE_HEADER_LINE += "#{char[ 0 ]}'s Power\t#{char[ 0 ]}'s Trophies\t#{char[ 0 ]}'s Max Trophies\t"
 end
 EXPORT_FILE_HEADER_LINE += "\n"
 $VERBOSE = warn_level
 
 PDF_FILE_DIR = "./Comparisons"
 PDF_FILE_EXT = ".comparison.pdf"
+
+FONTS_DIR = "./Fonts"
+FONTS_EXT = ".ttf"
+FONTS_EXT1 = [ ".ttf", ".otf" ]

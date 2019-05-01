@@ -17,16 +17,19 @@ end
 
 class Brawler
 
-    attr_accessor :name, :rarity, :trophies
+    attr_accessor :name, :rarity, :power, :trophies
 
+    # In
     def initialize( name = "", rarity = "" )
         @name = name
         @rarity = rarity
+        @power = 0
         @trophies = Trophies.new()
     end
 
     def update( stats )
-        @trophies.update_all( stats )
+        @power = stats[ 0 ]
+        @trophies.update_trophies( stats[ 1 ], stats[ 2 ], self.class.name )
     end
 
     def is_unlocked()
@@ -34,7 +37,7 @@ class Brawler
     end
 
     def printable()
-        return "#{@name} (#{@rarity}): #{@trophies.printable()}"
+        return "#{@name} (#{@rarity}): Power #{@power} #{@trophies.printable()}"
     end
 
     def export_to_csv()
@@ -43,6 +46,7 @@ class Brawler
 
     def self.compare( a, b )
         result = Brawler.new( a.name, a.rarity )
+        result.power = "#{a.power} vs #{b.power}"
         result.trophies = Trophies.compare( a.trophies, b.trophies )
         return result
     end
