@@ -33,7 +33,7 @@ class Brawler
     end
 
     def is_unlocked()
-        return ( not ( @trophies.rank == 0 or @trophies.rank == "0 vs 0" ) )
+        return ( not ( @power == 0 or @power == "0 vs 0" ) )
     end
 
     def printable()
