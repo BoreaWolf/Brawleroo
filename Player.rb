@@ -377,11 +377,13 @@ class Players
                     #   output_file.text( "General stats", :align => :center )
 
                     #   puts "Pre graph: #{output_file.cursor}"
-                    output_file.chart( players_data_series[ "trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
+                    output_file.chart( { get_player_name( player_id ) => players_data_series[ "trophies" ][ get_player_name( player_id ) ],
+                                         player.name => players_data_series[ "trophies" ][ player.name ] } )
                     #   puts "Pre caption: #{output_file.cursor}"
                     output_file.text( "Current trophies", :align => :center )
                     #   puts "Pre graph: #{output_file.cursor}"
-                    output_file.chart( players_data_series[ "max_trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name },
+                    output_file.chart( { get_player_name( player_id ) => players_data_series[ "max_trophies" ][ get_player_name( player_id ) ],
+                                         player.name => players_data_series[ "max_trophies" ][ player.name ] },
                                        type: :line,
                                        line_widths: [ 2, 2 ],
                                        labels: [ true, true ],
