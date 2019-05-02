@@ -37,7 +37,7 @@ class Brawler
     end
 
     def printable()
-        return "#{@name} (#{@rarity}): Power #{@power} #{@trophies.printable()}"
+        return "#{@name} (#{@rarity}): Power: #{@power} #{@trophies.printable()}"
     end
 
     def export_to_csv()

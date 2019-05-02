@@ -6,6 +6,7 @@
 #
 
 require "date"
+require "fastimage"
 require "prawn"
 require "squid"
 
@@ -261,7 +262,7 @@ class Players
         	font_files.each do |font|
         		fonts.push( [ font, font.rpartition( "/" )[2].partition( "." )[0] ] )
         	end
-
+            
         	fonts.each do |font|
         		output_file.font_families.update(
         			font[ 1 ] => {
@@ -271,8 +272,6 @@ class Players
         				:bold_italic =>	{ :file => font[ 0 ], :font => font[ 1 ] + "-BoldItalic" }
         			} )
         	end
-
-            output_file.font( "icedrop" )
 
             # Personal progression graphs for each brawler
             output_file.text( "#{get_player_name( player_id )}", :align => :center )
@@ -289,12 +288,18 @@ class Players
             graph_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_GRAPH ]
             info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
             split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
-            icon_width = split_box_size[ 0 ] * 0.50
-            icon_height = split_box_size[ 1 ] * 0.65
-            icon_pad = [ icon_width, icon_height ].max * 0.10
+            bubble_width = split_box_size[ 0 ] * 0.50
+            bubble_height = split_box_size[ 1 ] * 0.65
+
+            #   font_index = 0
+            #   fonts = [ "Another Round", "icedrop", "tf2build", "Barnacle Boy" ]
             
             # Creating the graphs based on their ordered list
             ordered_chars.each do |char_name, char_rarity, _|
+
+                #   output_file.font( fonts[ font_index ] )
+                #   font_index = ( font_index + 1 ) % fonts.size
+                output_file.font( "tf2build" )
 
                 # Brawler name box
                 output_file.bounding_box( [ 0, output_file.cursor ], :width => name_box_size[ 0 ], :height => name_box_size[ 1 ] ) do
@@ -328,18 +333,27 @@ class Players
                     end
                 end
 
+                # Clear font for the graphs
+                output_file.font( "Helvetica" )
+
                 # Brawler image
                 output_file.bounding_box( [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
                     output_file.ellipse( [ split_box_size[ 0 ] / 2, split_box_size[ 1 ] / 2 ],
-                                         Math.sqrt( 2 ) * icon_width / 2,
-                                         Math.sqrt( 2 ) * icon_height / 2 )
+                                         Math.sqrt( 2 ) * bubble_width / 2,
+                                         Math.sqrt( 2 ) * bubble_height / 2 )
                     output_file.fill_color( RARITY_COLORS[ RARITY[ char_rarity ] ] )
                     output_file.fill()
-                    output_file.image( #    "#{IMAGES_DIR}/hero_#{char_name.downcase}.png",
-                                      "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png",
-                                       :at => [ ( split_box_size[ 0 ] - icon_width + icon_pad ) / 2, ( split_box_size[ 1 ] + icon_height - icon_pad ) / 2 ],
-                                       :width => icon_width - icon_pad,
-                                       :height => icon_height - icon_pad )
+                    #
+                    # Reading the image original dimensions
+                    #    "#{IMAGES_DIR}/hero_#{char_name.downcase}.png",
+                    image_path = "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png"
+                    image_dim = FastImage.size( image_path )
+                    image_height = [ image_dim[ 1 ], Math.sqrt( 2 ) * bubble_width ].min.round
+                    image_width = ( image_dim[ 0 ] * image_height / image_dim[ 1 ] ).round
+                    output_file.image( image_path,
+                                       :at => [ ( split_box_size[ 0 ] - image_width ) / 2, ( split_box_size[ 1 ] + image_height ) / 2 ],
+                                       :width => image_width,
+                                       :height => image_height )
                     output_file.fill_color( "000000" )
                 end
 
@@ -356,7 +370,9 @@ class Players
                     end 
 
                     output_file.pad_top( graph_box_size[ 1 ] * 0.02 ) do 
-                        output_file.text( "Trophies progression", :align => :center )
+                        output_file.font( "tf2build" ) do
+                            output_file.text( "Trophies progression", :align => :center )
+                        end
                     end
                 end
 
