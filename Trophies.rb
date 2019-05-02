@@ -15,6 +15,7 @@ class Trophies
         @max_trophies = 0
     end
     
+    # Used only for brawland website
     def update_all( match_result )
         @rank = match_result[ 0 ]
         @rank.strip! if @rank.is_a? String
@@ -22,18 +23,10 @@ class Trophies
         @max_trophies = match_result[ 2 ]
     end
 
-    def update_trophies( current, highest )
+    def update_trophies( current, highest, object_class )
         @trophies = current
         @max_trophies = highest
-        @rank = find_rank( @max_trophies )
-    end
-
-    def find_rank( trophies )
-        index = 0
-        while index < PLAYER_RANKS.length and trophies > PLAYER_RANKS[ index ][ 0 ] do
-            index += 1
-        end
-        return PLAYER_RANKS[ index - 1 ][ 1 ]
+        @rank = Trophies.find_rank( @max_trophies, object_class )
     end
 
     def printable()
@@ -50,6 +43,21 @@ class Trophies
         result.trophies = a.trophies - b.trophies
         result.max_trophies = a.max_trophies - b.max_trophies
         return result
+    end
+
+    def self.find_rank( trophies, object_class )
+        index = 0
+        if object_class == "Player" then
+            while index < PLAYER_RANKS.length and trophies >= PLAYER_RANKS[ index ][ 0 ] do
+                index += 1
+            end
+            return PLAYER_RANKS[ index - 1 ][ 1 ]
+        elsif object_class == "Brawler" then
+            while index < BRAWLER_RANKS.length and trophies >= BRAWLER_RANKS[ index ] do
+                index += 1
+            end
+            return index
+        end
     end
 end
 

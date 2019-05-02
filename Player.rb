@@ -5,8 +5,10 @@
 # Description: Class representing a single player
 #
 
-require "squid"
+require "date"
+require "fastimage"
 require "prawn"
+require "squid"
 
 require "./Constants.rb"
 require "./Trophies.rb"
@@ -200,7 +202,7 @@ class Players
         # Reading the file of the player
         # Each line of the file corresponds to a day of data
         # Need to create an array of characters with the data dividede by day
-        data_selectors = [ "Rank", "Trophies", "Max" ]
+        data_selectors = [ "Power", "Trophies", "Max", "Rank" ]
         char_names = [ get_player_name( player_id ), CHARS.map{ |x| x[ 0 ] } ].flatten
         player_progression = Hash.new
         char_names.each do |char_name|
@@ -239,6 +241,11 @@ class Players
                     player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
                     player_progression[ get_player_name( player_id ) ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
                 end
+                # TODO: Find a way to pass the Brawler class name from the class
+                # itself and not as a typed String
+                if player_progression[ CHARS[ index ][ 0 ] ][ "Power" ][ current_date ] > 0 then
+                    player_progression[ CHARS[ index ][ 0 ] ][ "Rank" ][ current_date ] = Trophies.find_rank( player_progression[ CHARS[ index ][ 0 ] ][ "Max" ][ current_date ], "Brawler" )
+                end
             end
         end
 
@@ -246,7 +253,26 @@ class Players
         # Creating a graph with all brawlers on the x-axis and their trophies on
         # the y-axis
         Prawn::Document.generate( "#{PDF_FILE_DIR}/#{get_player_name( player_id )}#{PDF_FILE_EXT}",
-                                  :page_layout => :landscape ) do |output_file|
+                                  # :page_layout => :landscape, # ) do |output_file|
+                                  :page_size => PAGE_DIM ) do |output_file|
+
+        	# Fonts
+        	font_files = Dir[ "#{FONTS_DIR}/*#{FONTS_EXT}" ]
+        	fonts = Array.new
+        	font_files.each do |font|
+        		fonts.push( [ font, font.rpartition( "/" )[2].partition( "." )[0] ] )
+        	end
+            
+        	fonts.each do |font|
+        		output_file.font_families.update(
+        			font[ 1 ] => {
+        				:normal =>		{ :file => font[ 0 ], :font => font[ 1 ]  },
+        				:italic => 		{ :file => font[ 0 ], :font => font[ 1 ] + "-Italic" },
+        				:bold =>		{ :file => font[ 0 ], :font => font[ 1 ] + "-Bold" },
+        				:bold_italic =>	{ :file => font[ 0 ], :font => font[ 1 ] + "-BoldItalic" }
+        			} )
+        	end
+
             # Personal progression graphs for each brawler
             output_file.text( "#{get_player_name( player_id )}", :align => :center )
 
@@ -256,15 +282,101 @@ class Players
                                labels: [ true ] )
             output_file.start_new_page()
 
+            # Pages for each brawler with information and progression graph
+            # Boxes dimensions of these pages
+            name_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_NAME ]
+            graph_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_GRAPH ]
+            info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
+            split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
+            bubble_width = split_box_size[ 0 ] * 0.50
+            bubble_height = split_box_size[ 1 ] * 0.65
+
+            #   font_index = 0
+            #   fonts = [ "Another Round", "icedrop", "tf2build", "Barnacle Boy" ]
+            
             # Creating the graphs based on their ordered list
-            # TODO: Add the picture of the brawler before the graph
             ordered_chars.each do |char_name, char_rarity, _|
-                output_file.text( "#{char_name} - Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ] }", :align => :center )
-                output_file.chart( { "Max" => player_progression[ char_name ][ "Max" ], "Trophies" => player_progression[ char_name ][ "Trophies" ] },
-                                   type: :line,
-                                   #    type: :two_axis,
-                                   line_widths: [ 1, 2 ],
-                                   labels: [ true, true ] )
+
+                #   output_file.font( fonts[ font_index ] )
+                #   font_index = ( font_index + 1 ) % fonts.size
+                output_file.font( "tf2build" )
+
+                # Brawler name box
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => name_box_size[ 0 ], :height => name_box_size[ 1 ] ) do
+                    output_file.pad_top( name_box_size[ 1 ] / 3 ) do
+                        output_file.text( "#{char_name.upcase}", :align => :center, :size => name_box_size[ 1 ] / 2 )
+                    end
+                end
+
+                # Written info box
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
+                    info_text = [ "Power Level: #{player_progression[ char_name ][ "Power" ].to_a.last()[ 1 ]}",
+                                  "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}",
+                                  "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}",
+                                  "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}" ]
+                    # 1/2 of the box is free space on top and bottom
+                    # The remaining half is split equally between text and pad
+                    info_text_font_size = split_box_size[ 1 ] / 4 / info_text.size
+                    info_text_pad = split_box_size[ 1 ] / 4 / info_text.size
+                    top_space = ( split_box_size[ 1 ] + info_text.size * info_text_font_size + ( info_text.size - 1 ) * info_text_pad ) / 2
+
+                    # Pad top works from the top of the box, so I need the
+                    # complementary to what I have calculated 
+                    output_file.pad_top( split_box_size[ 1 ] - top_space ) do
+                        info_text.each do |text|
+                            # Using pad bottom to avoid pushing everything down
+                            # one unnecessary space
+                            # The extra space is after the last text which is
+                            # not going to be a problem, hopefully
+                            output_file.pad_bottom( info_text_pad ){ output_file.text( text, :align => :center, :size => info_text_font_size ) }
+                        end
+                    end
+                end
+
+                # Clear font for the graphs
+                output_file.font( "Helvetica" )
+
+                # Brawler image
+                output_file.bounding_box( [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], :width => split_box_size[ 0 ], :height => split_box_size[ 1 ] ) do
+                    output_file.ellipse( [ split_box_size[ 0 ] / 2, split_box_size[ 1 ] / 2 ],
+                                         Math.sqrt( 2 ) * bubble_width / 2,
+                                         Math.sqrt( 2 ) * bubble_height / 2 )
+                    output_file.fill_color( RARITY_COLORS[ RARITY[ char_rarity ] ] )
+                    output_file.fill()
+                    #
+                    # Reading the image original dimensions
+                    #    "#{IMAGES_DIR}/hero_#{char_name.downcase}.png",
+                    image_path = "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png"
+                    image_dim = FastImage.size( image_path )
+                    image_height = [ image_dim[ 1 ], Math.sqrt( 2 ) * bubble_width ].min.round
+                    image_width = ( image_dim[ 0 ] * image_height / image_dim[ 1 ] ).round
+                    output_file.image( image_path,
+                                       :at => [ ( split_box_size[ 0 ] - image_width ) / 2, ( split_box_size[ 1 ] + image_height ) / 2 ],
+                                       :width => image_width,
+                                       :height => image_height )
+                    output_file.fill_color( "000000" )
+                end
+
+                # Brawler progression graph
+                output_file.bounding_box( [ 0, output_file.cursor ], :width => graph_box_size[ 0 ], :height => graph_box_size[ 1 ] ) do
+                    output_file.pad_top( graph_box_size[ 1 ] * 0.07 ) do
+                        output_file.chart( { "Max" => create_cute_hash( player_progression[ char_name ][ "Max" ] ),
+                                             "Trophies" => create_cute_hash( player_progression[ char_name ][ "Trophies" ] ) },
+                                           type: :line,
+                                           #    type: :two_axis,
+                                           line_widths: [ 1, 2 ],
+                                           labels: [ true, true ],
+                                           height: graph_box_size[ 1 ] * 0.8 )
+                    end 
+
+                    output_file.pad_top( graph_box_size[ 1 ] * 0.02 ) do 
+                        output_file.font( "tf2build" ) do
+                            output_file.text( "Trophies progression", :align => :center )
+                        end
+                    end
+                end
+
+                # Starting a new page for the next brawler
                 output_file.start_new_page()
             end
 
@@ -281,11 +393,13 @@ class Players
                     #   output_file.text( "General stats", :align => :center )
 
                     #   puts "Pre graph: #{output_file.cursor}"
-                    output_file.chart( players_data_series[ "trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name } )
+                    output_file.chart( { get_player_name( player_id ) => players_data_series[ "trophies" ][ get_player_name( player_id ) ],
+                                         player.name => players_data_series[ "trophies" ][ player.name ] } )
                     #   puts "Pre caption: #{output_file.cursor}"
                     output_file.text( "Current trophies", :align => :center )
                     #   puts "Pre graph: #{output_file.cursor}"
-                    output_file.chart( players_data_series[ "max_trophies" ].select{ |k,v| k == get_player_name( player_id ) or k == player.name },
+                    output_file.chart( { get_player_name( player_id ) => players_data_series[ "max_trophies" ][ get_player_name( player_id ) ],
+                                         player.name => players_data_series[ "max_trophies" ][ player.name ] },
                                        type: :line,
                                        line_widths: [ 2, 2 ],
                                        labels: [ true, true ],
@@ -320,10 +434,14 @@ class Players
                     #                      line_widths: [ 2, 2, 1, 1 ],
                     #                      labels: [ false, false, true, true ] )
 
-                    #   output_file.start_new_page()
+                    output_file.start_new_page()
                 end
             end
         end
         puts "DONE (•̀o•́)ง"
+    end
+
+    def create_cute_hash( data )
+        return data.map{ |k,v| [ DateTime.parse( k ).strftime( GRAPH_TIME_FORMAT ), v ] }.to_h
     end
 end

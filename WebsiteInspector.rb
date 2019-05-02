@@ -114,7 +114,7 @@ class WebsiteInspector
         # tag surrounded by angle brackets <>
         player.name = "<#{player.id}>" if player.name.empty?
 
-        player.trophies.update_trophies( player_data[ "trophies" ], player_data[ "highestTrophies" ] )
+        player.trophies.update_trophies( player_data[ "trophies" ], player_data[ "highestTrophies" ], player.class.name )
         player.experience.update_total( player_data[ "totalExperience" ] )
         player.victories.update_all( [ player_data[ "winCount" ], player_data[ "showdownWinCount" ][ "solo" ], player_data[ "showdownWinCount" ][ "duo" ] ] )
         player_data[ "brawlers" ].each do |brawler|

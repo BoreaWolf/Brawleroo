@@ -5,6 +5,9 @@ Comparisons/*
 !Comparisons/.gitkeep
 Stats/*
 !Stats/.gitkeep
+Fonts/*
+!Fonts/.gitkeep
+!Fonts/*.ttf
 
 # Temporary files
 **/*.swp

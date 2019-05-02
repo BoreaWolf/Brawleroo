@@ -7,8 +7,8 @@
 #
 
 require "./Constants.rb"
+require "./GetBrawlerIcons.rb"
 require "./Player.rb"
-
 
 # Functions
 def clean_string( string )
@@ -16,6 +16,10 @@ def clean_string( string )
 end
 
 # ~~~~~~~~~~~~~ MAIN ~~~~~~~~~~~~~
+if ARGV[ 0 ] == "images" then
+    get_brawler_icons()
+end
+
 update = ( ARGV[ 0 ] == "update" )
 
 players = Players.new( IDS )
@@ -34,4 +38,5 @@ end
 players.export_to_csv()
 players.update_players_csv_stats() if update
 players.create_graphs( ID_MINE )
+#   players.create_graphs( ID_OTHERS[ 4 ] )
 

@@ -14,6 +14,8 @@ WEBSITE_BRAWLSTATS_API = "https://api.brawlstats.com/v6/players/profiles"
 # Expire time of 6 hours
 TOKEN_EXPIRE_TIME = 6 * 60 * 60
 TOKEN_LOCAL_FILE = "#{DIR_WEBPAGES}/token.local"
+BRAWLER_ICON_LINK = "https://brawlstats.com/dist/hero_icon_"
+BRAWLER_ICON_EXT = ".png"
 
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
@@ -52,12 +54,12 @@ REGEX_DATE_ONLY = /([0-9\/]+)/
 # Rarities and list of known brawlers
 RARITY = [ "Common", "Rare", "Super Rare", "Epic", "Mythic", "Legendary" ]
 #   Rarity colors if they would ever be needed
-#   RARITY = [ [ "Common", "94D7F4" ],
-#              [ "Rare", "2EDD16" ],
-#              [ "Super Rare", "008FFA" ],
-#              [ "Epic", "B116ED" ],
-#              [ "Mythic", "D6001A" ],
-#              [ "Legendary" "FFF11E" ] ]
+RARITY_COLORS = { "Common" => "94D7F4",
+                  "Rare" => "2EDD16",
+                  "Super Rare" => "008FFA",
+                  "Epic" => "B116ED",
+                  "Mythic" => "D6001A",
+                  "Legendary" => "FFF11E" }
 CHARS = [ [ "Shelly", 0, 0 ],
           [ "Nita", 0, 8 ],
           [ "Colt", 0, 1 ],
@@ -117,11 +119,23 @@ PLAYER_RANKS = [ [ 0, "Unranked" ],
                  [ 13000, "All-Star IV" ],
                  [ 14000, "All-Star V" ] ]
 
+# The rank it self is the index of the array + 1
+BRAWLER_RANKS = [ 0, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160, 180, 220, 260, 300, 340, 380, 420, 460, 500 ]
+
 # Export file constants
 EXPORT_FILE_DIR = "./Stats"
 EXPORT_FILE_NAME = "full_exported_stats"
 EXPORT_FILE_EXT = ".csv"
 LINES_TO_READ = 15
+
+IMAGES_DIR = "./Images"
+PAGE_DIM = [ 1000, 700 ]
+PAGE_MARGIN = 36
+REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARGIN ]
+RATE_BRAWLER_NAME = 0.1
+RATE_BRAWLER_INFO = 0.45
+RATE_BRAWLER_GRAPH = 1 - RATE_BRAWLER_NAME - RATE_BRAWLER_INFO
+GRAPH_TIME_FORMAT = "%d %b %R"
 
 # Redefinition of the constant is annoying
 # Telling the interpreter to ignore these warnings
@@ -129,10 +143,13 @@ warn_level = $VERBOSE
 $VERBOSE = nil
 EXPORT_FILE_HEADER_LINE = "Name\t#\tRank\tTrophies\tMax Trophies\t3v3\t2v2\t1v1\t"
 CHARS.each do |char|
-    EXPORT_FILE_HEADER_LINE += "#{char[ 0 ]}'s Rank\t#{char[ 0 ]}'s Trophies\t#{char[ 0 ]}'s Max Trophies\t"
+    EXPORT_FILE_HEADER_LINE += "#{char[ 0 ]}'s Power\t#{char[ 0 ]}'s Trophies\t#{char[ 0 ]}'s Max Trophies\t"
 end
 EXPORT_FILE_HEADER_LINE += "\n"
 $VERBOSE = warn_level
 
 PDF_FILE_DIR = "./Comparisons"
 PDF_FILE_EXT = ".comparison.pdf"
+
+FONTS_DIR = "./Fonts"
+FONTS_EXT = ".ttf"
