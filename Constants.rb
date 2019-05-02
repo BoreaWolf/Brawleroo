@@ -86,6 +86,10 @@ CHARS = [ [ "Shelly", 0, 0 ],
           [ "Leon", 5, 23 ],
           [ "Rosa", 1, 24 ] ]
 BRAWLSTATS_ID_CONSTANT = 16000000
+# Ordering the brawlers based on their rarity first and on their id
+# afterwards
+# Useful to have clean graphs based on the rarity of the brawlers
+ORDERED_CHARS = CHARS.sort_by{ |char| [ char[ 1 ], char[ 2 ] ] }
 
 # Player ranks divided by trophies
 PLAYER_RANKS = [ [ 0, "Unranked" ],

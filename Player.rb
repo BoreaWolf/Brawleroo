@@ -173,11 +173,6 @@ class Players
     def create_graphs( player_id )
         print "Creating cute graphs for the player '#{player_id}'..."
 
-        # Ordering the brawlers based on their rarity first and on their id
-        # afterwards
-        # Useful to have clean graphs based on the rarity of the brawlers
-        ordered_chars = CHARS.sort_by{ |char| [ char[ 1 ], char[ 2 ] ] }
-
         # Creating all data used to print afterwards
         players_data_series = Hash.new
         data_selectors = [ "trophies", "max_trophies", "other" ]
@@ -185,7 +180,7 @@ class Players
             players_data_series[ data_selector ] = Hash.new
             @player_list.each do |player|
                 players_data_series[ data_selector ][ player.name ] = Hash.new
-                ordered_chars.each do |char_name, _, _|
+                ORDERED_CHARS.each do |char_name, _, _|
                     case data_selector
                     when "trophies"
                         players_data_series[ data_selector ][ player.name ][ char_name ] = player.get_brawler( char_name ).trophies.trophies
@@ -295,7 +290,7 @@ class Players
             #   fonts = [ "Another Round", "icedrop", "tf2build", "Barnacle Boy" ]
             
             # Creating the graphs based on their ordered list
-            ordered_chars.each do |char_name, char_rarity, _|
+            ORDERED_CHARS.each do |char_name, char_rarity, _|
 
                 #   output_file.font( fonts[ font_index ] )
                 #   font_index = ( font_index + 1 ) % fonts.size

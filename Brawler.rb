@@ -89,8 +89,8 @@ class Brawlers
 
     def printable()
         result = "Brawler list (#{get_unlocked()}/#{CHARS.length}):\n"
-        @brawler_list.each do |_, data|
-            result +=  " - " + data.printable() + "\n"
+        ORDERED_CHARS.each do |brawler_name, _, _|
+            result +=  " - " + @brawler_list[ brawler_name ].printable() + "\n"
         end
         return result
     end
