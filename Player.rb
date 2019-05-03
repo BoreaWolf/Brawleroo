@@ -318,7 +318,7 @@ class Players
                               [ ( REAL_PAGE_DIM[ 0 ] - player_image_box_size[ 0 ] ) / 2, REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ],
                               player_image_box_size,
                               "FFFFFF",
-                              "#{IMAGES_DIR}/sbra.png",
+                              "#{IMAGES_DIR}/#{get_player_by_id( player_id ).image}#{BRAWLER_ICON_EXT}",
                               0.5 )
 
             # Trophies progression of the player

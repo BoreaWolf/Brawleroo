@@ -11,10 +11,12 @@ WEBSITE_LINK = "https://brawland.com"
 PLAYER_LINK = "#{WEBSITE_LINK}/player.php?tag="
 WEBSITE_BRAWLSTATS = "https://brawlstats.com"
 WEBSITE_BRAWLSTATS_API = "https://api.brawlstats.com/v6/players/profiles"
+WEBSITE_BRAWLSTATS_ICONS = "#{WEBSITE_BRAWLSTATS}/dist"
 # Expire time of 6 hours
 TOKEN_EXPIRE_TIME = 6 * 60 * 60
 TOKEN_LOCAL_FILE = "#{DIR_WEBPAGES}/token.local"
-BRAWLER_ICON_LINK = "https://brawlstats.com/dist/hero_icon_"
+BRAWLER_ICON_PRE = "hero_icon_"
+BRAWLER_ICON_LINK = "#{WEBSITE_BRAWLSTATS_ICONS}/#{BRAWLER_ICON_PRE}"
 BRAWLER_ICON_EXT = ".png"
 
 ID_MINE = "2UR0L90P2"
@@ -26,6 +28,7 @@ ID_OTHERS = [ "U29P28CU",
               "2U29GP8P0",
               "8LY9VP2UV",
               "2V9L0U29",
+              "2009VJQ0Y",
               "PQJQPG2G",
               "8YCYURYL",
               "J8PRC802",

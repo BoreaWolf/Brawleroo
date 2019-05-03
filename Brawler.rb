@@ -41,7 +41,7 @@ class Brawler
     end
 
     def export_to_csv()
-        return "#{@trophies.export_to_csv()}"
+        return "#{@power}\t#{@trophies.trophies}\t#{@trophies.max_trophies}"
     end
 
     def self.compare( a, b )

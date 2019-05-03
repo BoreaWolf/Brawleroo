@@ -8,6 +8,7 @@ Stats/*
 Fonts/*
 !Fonts/.gitkeep
 !Fonts/*.ttf
+CssImages/*
 
 # Temporary files
 **/*.swp

@@ -114,6 +114,12 @@ class WebsiteInspector
         # tag surrounded by angle brackets <>
         player.name = "<#{player.id}>" if player.name.empty?
 
+        player.image = player_data[ "avatarId" ]
+        if not File.exists?( "#{IMAGES_DIR}/#{player.image}#{BRAWLER_ICON_EXT}" ) then
+            puts "Downloading avatar of #{player.name}##{player.id}(#{player.image})"
+            save_player_icon( player.image )
+        end
+
         player.trophies.update_trophies( player_data[ "trophies" ], player_data[ "highestTrophies" ], player.class.name )
         player.experience.update_total( player_data[ "totalExperience" ] )
         player.victories.update_all( [ player_data[ "winCount" ], player_data[ "showdownWinCount" ][ "solo" ], player_data[ "showdownWinCount" ][ "duo" ] ] )
@@ -138,5 +144,16 @@ class WebsiteInspector
 
         # Reading the second line of the file and returning the requested token
         return File.open( TOKEN_LOCAL_FILE, "r" ).readlines()[ 1 ]
+    end
+
+    def save_player_icon( badge_id )
+        print "Saving icon #{badge_id}."
+        puts "'#{WEBSITE_BRAWLSTATS_ICONS}/#{badge_id}#{BRAWLER_ICON_EXT}'"
+        open( "#{WEBSITE_BRAWLSTATS_ICONS}/#{badge_id}#{BRAWLER_ICON_EXT}" ) do |image_link|
+            File.open( "#{IMAGES_DIR}/#{badge_id}#{BRAWLER_ICON_EXT}", "w" ) do |image|
+                image.puts( image_link.read() )
+            end
+        end
+        puts "...DONE o(^▽^)o"
     end
 end
