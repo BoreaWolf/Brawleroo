@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Author: Riccardo Orizio
-# Date: Thu 21 Mar 2019 
+# Date: Thu 21 Mar 2019
 # Description: Class representing a single player
 #
 
@@ -70,7 +70,7 @@ class Player
         # Looking for the player file, if it doesn't exist it will get created
         # Opening the file with append does what I need without checking the
         # existence of the file
-        
+
         # I could avoid printing the name and tag since the file is personal of
         # that player, but in this way I have data format consistence through
         # all the files
@@ -206,7 +206,7 @@ class Players
                 end
             end
         end
-        
+
         # Player page
 
         # Personal progression graphs
@@ -273,7 +273,7 @@ class Players
         	font_files.each do |font|
         		fonts.push( [ font, font.rpartition( "/" )[2].partition( "." )[0] ] )
         	end
-            
+
         	fonts.each do |font|
         		output_file.font_families.update(
         			font[ 1 ] => {
@@ -283,7 +283,7 @@ class Players
         				:bold_italic =>	{ :file => font[ 0 ], :font => font[ 1 ] + "-BoldItalic" }
         			} )
         	end
-            
+
             #   font_index = 0
             #   fonts = [ "Another Round", "icedrop", "tf2build", "Barnacle Boy" ]
 
@@ -402,7 +402,7 @@ class Players
             top_space = ( dimension[ 1 ] + info_text.size * info_text_font_size + ( info_text.size - 1 ) * info_text_pad ) / 2
 
             # Pad top works from the top of the box, so I need the
-            # complementary to what I have calculated 
+            # complementary to what I have calculated
             output_file.pad_top( dimension[ 1 ] - top_space ) do
                 info_text.each do |text|
                     # Using pad bottom to avoid pushing everything down
@@ -444,10 +444,10 @@ class Players
                                        legend: graph_legend,
                                        height: dimension[ 1 ] * 0.8 )
                 end
-            end 
+            end
 
             # Graph label
-            output_file.pad_top( dimension[ 1 ] * 0.02 ) do 
+            output_file.pad_top( dimension[ 1 ] * 0.02 ) do
                 output_file.text( graph_caption, :align => :center )
             end
         end
@@ -457,9 +457,9 @@ class Players
         bubble_width = dimension[ 0 ] * 0.50
         bubble_height = dimension[ 1 ] * 0.65
         previous_fill_color = output_file.fill_color()
-        
+
         output_file.bounding_box( starting_point, :width => dimension[ 0 ], :height => dimension[ 1 ] ) do
-            output_file.transparent( transparency ) do 
+            output_file.transparent( transparency ) do
                 output_file.ellipse( [ dimension[ 0 ] / 2, dimension[ 1 ] / 2 ],
                                      Math.sqrt( 2 ) * bubble_width / 2,
                                      Math.sqrt( 2 ) * bubble_height / 2 )
