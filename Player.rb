@@ -360,7 +360,7 @@ class Players
 
                     #   puts "Pre graph: #{output_file.cursor}"
 
-                    graph_data = { get_player_name( player_id ) => players_data_series[ "max_trophies" ][ get_player_name( player_id ) ],
+                    graph_data = { ref_player.name => players_data_series[ "max_trophies" ][ ref_player.name ],
                                    player.name => players_data_series[ "max_trophies" ][ player.name ] }
                     create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Max trophies", [ true, true ], false, :line, [ 2, 2 ] )
 
