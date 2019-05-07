@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Author: Riccardo Orizio
-# Date: Thu 21 Mar 2019 
+# Date: Thu 21 Mar 2019
 # Description: Class representing the trophies of either the player or one
 # brawler
 #
@@ -14,7 +14,7 @@ class Trophies
         @trophies = 0
         @max_trophies = 0
     end
-    
+
     # Used only for brawland website
     def update_all( match_result )
         @rank = match_result[ 0 ]

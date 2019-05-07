@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Author: Riccardo Orizio
-# Date: Thu 21 Mar 2019 
+# Date: Thu 21 Mar 2019
 # Description: Functions to read data from different websites
 #
 
@@ -29,19 +29,19 @@ class WebsiteInspector
             save_file.write( open( link, &:read ) )
             save_file.close
         end
-        
+
         puts " === Reading info of '#{id}' === "
-        
+
         # Reading file of given id
         content = File.open( "#{DIR_WEBPAGES}/#{id}.html" ) { |f| Nokogiri::HTML(f) }
-        
+
         # Reading data of the player
         player_badge = content.css( "h2.float-left" )
         player.image = player_badge.css( "img" ).first[ "src" ]
         player.name = clean_string( player_badge.text )
         player.name.slice!( player.name.index( "Player" )..-1 )
         player.name = player.name.strip
-        
+
         trophies = nil
         experience = nil
         victories = nil
@@ -51,18 +51,18 @@ class WebsiteInspector
             experience = clean_string( div.text ).match( REGEX_EXPERIENCE ) unless experience != nil
             victories = clean_string( div.text ).match( REGEX_VICTORIES ) unless victories != nil
         end
-        
+
         player.trophies.update_all( trophies.captures )
         player.experience.update_all( experience.captures )
         player.victories.update_all( victories.captures )
-        
+
         # Reading info about brawlers
         content.css( "div.brawlers-item" ).each do |brawler|
             stats = clean_string( brawler.text ).match( REGEX_BRAWLER ).captures
             player.brawlers.update_brawler( stats[ 0 ], stats[ 1..-1 ] )
         end
     end
-    
+
     def read_stats_brawlstats( id, player, online )
 
         # For this website I need to send two requests: OPTIONS and GET

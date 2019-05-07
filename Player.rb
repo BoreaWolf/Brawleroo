@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Author: Riccardo Orizio
-# Date: Thu 21 Mar 2019 
+# Date: Thu 21 Mar 2019
 # Description: Class representing a single player
 #
 
@@ -42,15 +42,15 @@ class Player
     end
 
     def get_rank()
-        return @trophies.rank
+        @trophies.rank
     end
 
     def get_level()
-        return @experience.level
+        @experience.level
     end
 
     def get_unlocked_brawlers()
-        return @brawlers.get_unlocked()
+        @brawlers.get_unlocked()
     end
 
     def printable()
@@ -59,18 +59,18 @@ class Player
         result += @trophies.printable() + "\n"
         result += @victories.printable() + "\n"
         result += @brawlers.printable() + "\n"
-        return result
+        result
     end
 
     def printable_intro()
-        return "#{@name} (##{@id}) #{@trophies.printable()}"
+        "#{@name} (##{@id}) #{@trophies.printable()}"
     end
 
     def update_csv_stats()
         # Looking for the player file, if it doesn't exist it will get created
         # Opening the file with append does what I need without checking the
         # existence of the file
-        
+
         # I could avoid printing the name and tag since the file is personal of
         # that player, but in this way I have data format consistence through
         # all the files
@@ -83,15 +83,15 @@ class Player
         result = "#{name}\t#{id}\t#{trophies.export_to_csv()}\t"
         result += "#{victories.export_to_csv()}\t"
         result += "#{brawlers.export_to_csv()}"
-        return result
+        result
     end
 
     def to_pdf_title_string()
-        return "#{name} #{to_pdf_subtitle_string()}"
+        "#{name} #{to_pdf_subtitle_string()}"
     end
 
     def to_pdf_subtitle_string()
-        return "[#{trophies.rank} @ #{trophies.trophies}]"
+        "[#{trophies.rank} @ #{trophies.trophies}]"
     end
 end
 
@@ -109,60 +109,40 @@ class Players
     end
 
     def get_player_by_name( name )
-        @player_list.each do |player|
-            if player.name == name then
-                return player
-            end
-        end
-        return "Player not found."
+        @player_list.find{ |player| player.name == name }
     end
 
     def get_player_by_id( id )
-        @player_list.each do |player|
-            if player.id == id then
-                return player
-            end
-        end
-        return "Player not found."
-    end
-
-    def get_player_name( id )
-        return get_player_by_id( id ).name
+        @player_list.find{ |player| player.id == id }
     end
 
     # Comparing all players to the given one
     def compare_to( id )
-        player_comparisons = Array.new()
         ref_player = get_player_by_id( id )
-        @player_list.each do |player|
-            if player.id != id then
-                compared = Player.new( "#{id}-##{player.id}" )
-                compared.name = "#{ref_player.name} vs #{player.name}"
-                compared.trophies = Trophies.compare( ref_player.trophies, player.trophies )
-                compared.experience = Experience.compare( ref_player.experience, player.experience )
-                compared.victories = Victories.compare( ref_player.victories, player.victories )
-                compared.brawlers = Brawlers.compare( ref_player.brawlers, player.brawlers )
-
-                player_comparisons.append( compared )
-            end
+        return if ref_player.nil?
+        @player_list
+          .select { |player| player.id != id }
+          .collect do |player|
+            compared = Player.new( "#{id}-##{player.id}" )
+            compared.name = "#{ref_player.name} vs #{player.name}"
+            compared.trophies = Trophies.compare( ref_player.trophies, player.trophies )
+            compared.experience = Experience.compare( ref_player.experience, player.experience )
+            compared.victories = Victories.compare( ref_player.victories, player.victories )
+            compared.brawlers = Brawlers.compare( ref_player.brawlers, player.brawlers )
+            compared
         end
-        return player_comparisons
     end
 
     def printable_intro()
-        result = "Player list:\n"
-        @player_list.each do |player|
-            result +=  " - " + player.printable_intro() + "\n"
+        @player_list.inject("Player list:\n") do |result, player|
+            result + " - " + player.printable_intro() + "\n"
         end
-        return result
     end
 
     def printable_full()
-        result = "Player list:\n"
-        @player_list.each do |player|
-            result +=  " => " + player.printable() + "\n"
+        @player_list.inject("Player list:\n") do |result, player|
+            result + " - " + player.printable() + "\n"
         end
-        return result
     end
 
     def update_players_csv_stats()
@@ -188,6 +168,11 @@ class Players
 
     def create_graphs( player_id )
         print "Creating cute graphs for the player '#{player_id}'..."
+        ref_player = get_player_by_id( player_id )
+        if ref_player.nil? then
+            print "Player not found."
+            return
+        end
 
         # Creating all data used to print afterwards
         players_data_series = Hash.new
@@ -206,7 +191,7 @@ class Players
                 end
             end
         end
-        
+
         # Player page
 
         # Personal progression graphs
@@ -214,7 +199,7 @@ class Players
         # Each line of the file corresponds to a day of data
         # Need to create an array of characters with the data dividede by day
         data_selectors = [ "Power", "Trophies", "Max", "Rank" ]
-        char_names = [ get_player_name( player_id ), CHARS.map{ |x| x[ 0 ] } ].flatten
+        char_names = [ ref_player.name, CHARS.map{ |x| x[ 0 ] } ].flatten
         player_progression = Hash.new
         char_names.each do |char_name|
             player_progression[ char_name ] = Hash.new
@@ -250,7 +235,7 @@ class Players
             daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
                 char_data.each_with_index do |char_stat, j|
                     player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
-                    player_progression[ get_player_name( player_id ) ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
+                    player_progression[ ref_player.name ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
                 end
                 # TODO: Find a way to pass the Brawler class name from the class
                 # itself and not as a typed String
@@ -263,7 +248,7 @@ class Players
         # Comparisons with other players, one page per player
         # Creating a graph with all brawlers on the x-axis and their trophies on
         # the y-axis
-        Prawn::Document.generate( "#{PDF_FILE_DIR}/#{get_player_name( player_id )}#{PDF_FILE_EXT}",
+        Prawn::Document.generate( "#{PDF_FILE_DIR}/#{ref_player.name}#{PDF_FILE_EXT}",
                                   # :page_layout => :landscape, # ) do |output_file|
                                   :page_size => PAGE_DIM ) do |output_file|
 
@@ -273,7 +258,7 @@ class Players
         	font_files.each do |font|
         		fonts.push( [ font, font.rpartition( "/" )[2].partition( "." )[0] ] )
         	end
-            
+
         	fonts.each do |font|
         		output_file.font_families.update(
         			font[ 1 ] => {
@@ -283,7 +268,7 @@ class Players
         				:bold_italic =>	{ :file => font[ 0 ], :font => font[ 1 ] + "-BoldItalic" }
         			} )
         	end
-            
+
             #   font_index = 0
             #   fonts = [ "Another Round", "icedrop", "tf2build", "Barnacle Boy" ]
 
@@ -298,19 +283,19 @@ class Players
             # Personal progression graphs for each brawler
             output_file.font( "tf2build" )
 
-            create_title_box( output_file, [ 0, output_file.cursor ], name_box_size, get_player_name( player_id ).upcase )
+            create_title_box( output_file, [ 0, output_file.cursor ], name_box_size, ref_player.name.upcase )
 
             info_text = [ "Player ID: ##{player_id}",
-                          "Rank: #{get_player_by_id( player_id ).get_rank()}",
-                          "Trophies: #{get_player_by_id( player_id ).trophies.trophies}",
-                          "Exp level: #{get_player_by_id( player_id ).get_level()}",
-                          "Unlocked Brawlers: #{get_player_by_id( player_id ).get_unlocked_brawlers()}/#{CHARS.size}" ]
+                          "Rank: #{ref_player.get_rank()}",
+                          "Trophies: #{ref_player.trophies.trophies}",
+                          "Exp level: #{ref_player.get_level()}",
+                          "Unlocked Brawlers: #{ref_player.get_unlocked_brawlers()}/#{CHARS.size}" ]
             create_info_text_box( output_file, [ 0, output_file.cursor ], split_box_size, info_text )
 
             info_text = [ "Victories:",
-                          "3v3: #{get_player_by_id( player_id ).victories.trio}",
-                          "Duo: #{get_player_by_id( player_id ).victories.duo}",
-                          "Solo: #{get_player_by_id( player_id ).victories.solo}", ]
+                          "3v3: #{ref_player.victories.trio}",
+                          "Duo: #{ref_player.victories.duo}",
+                          "Solo: #{ref_player.victories.solo}", ]
             create_info_text_box( output_file, [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], split_box_size, info_text )
 
             # TODO: Fix the image reading it from the json of the player
@@ -318,11 +303,11 @@ class Players
                               [ ( REAL_PAGE_DIM[ 0 ] - player_image_box_size[ 0 ] ) / 2, REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ],
                               player_image_box_size,
                               "FFFFFF",
-                              "#{IMAGES_DIR}/#{get_player_by_id( player_id ).image}#{BRAWLER_ICON_EXT}",
+                              "#{IMAGES_DIR}/#{ref_player.image}#{BRAWLER_ICON_EXT}",
                               0.5 )
 
             # Trophies progression of the player
-            graph_data = { "Trophies" => create_cute_hash( player_progression[ get_player_name( player_id ) ][ "Trophies" ] ) }
+            graph_data = { "Trophies" => create_cute_hash( player_progression[ ref_player.name ][ "Trophies" ] ) }
             create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Trophies", [ true ], false )
 
             output_file.start_new_page()
@@ -364,16 +349,17 @@ class Players
                 if player.id != player_id then
 
                     # Creating a two lines title
-                    create_title_box( output_file, [ 0, output_file.cursor ], name_box_size, "#{get_player_by_id( player_id ).name} vs. #{player.name}" )
+                    create_title_box( output_file, [ 0, output_file.cursor ], name_box_size, "#{ref_player.name} vs. #{player.name}" )
                     create_title_box( output_file, [ 0, output_file.cursor + name_box_size[ 1 ] / 3 ],
                                      [ name_box_size[ 0 ], name_box_size[ 1 ] / 2 ],
-                                     "#{get_player_by_id( player_id ).to_pdf_title_string()} vs. #{player.to_pdf_subtitle_string()}" )
+                                     "#{ref_player.to_pdf_title_string()} vs. #{player.to_pdf_subtitle_string()}" )
 
-                    graph_data = { get_player_name( player_id ) => players_data_series[ "trophies" ][ get_player_name( player_id ) ],
+                    graph_data = { ref_player.name => players_data_series[ "trophies" ][ ref_player.name ],
                                    player.name => players_data_series[ "trophies" ][ player.name ] }
                     create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Current Trophies", [ false, false ], true )
 
                     #   puts "Pre graph: #{output_file.cursor}"
+
                     graph_data = { get_player_name( player_id ) => players_data_series[ "max_trophies" ][ get_player_name( player_id ) ],
                                    player.name => players_data_series[ "max_trophies" ][ player.name ] }
                     create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Max trophies", [ true, true ], false, :line, [ 2, 2 ] )
@@ -402,7 +388,7 @@ class Players
             top_space = ( dimension[ 1 ] + info_text.size * info_text_font_size + ( info_text.size - 1 ) * info_text_pad ) / 2
 
             # Pad top works from the top of the box, so I need the
-            # complementary to what I have calculated 
+            # complementary to what I have calculated
             output_file.pad_top( dimension[ 1 ] - top_space ) do
                 info_text.each do |text|
                     # Using pad bottom to avoid pushing everything down
@@ -444,10 +430,10 @@ class Players
                                        legend: graph_legend,
                                        height: dimension[ 1 ] * 0.8 )
                 end
-            end 
+            end
 
             # Graph label
-            output_file.pad_top( dimension[ 1 ] * 0.02 ) do 
+            output_file.pad_top( dimension[ 1 ] * 0.02 ) do
                 output_file.text( graph_caption, :align => :center )
             end
         end
@@ -457,9 +443,9 @@ class Players
         bubble_width = dimension[ 0 ] * 0.50
         bubble_height = dimension[ 1 ] * 0.65
         previous_fill_color = output_file.fill_color()
-        
+
         output_file.bounding_box( starting_point, :width => dimension[ 0 ], :height => dimension[ 1 ] ) do
-            output_file.transparent( transparency ) do 
+            output_file.transparent( transparency ) do
                 output_file.ellipse( [ dimension[ 0 ] / 2, dimension[ 1 ] / 2 ],
                                      Math.sqrt( 2 ) * bubble_width / 2,
                                      Math.sqrt( 2 ) * bubble_height / 2 )

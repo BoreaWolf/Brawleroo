@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Author: Riccardo Orizio
-# Date: Thu 21 Mar 2019 
+# Date: Thu 21 Mar 2019
 # Description: Useful constants used in the program
 #
 
