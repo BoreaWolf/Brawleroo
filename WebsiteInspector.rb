@@ -131,19 +131,13 @@ class WebsiteInspector
     def get_token()
         # Reading the local token file if it is expired then I will get a
         # new one
-        if not File.exist?( TOKEN_LOCAL_FILE ) or Time.parse( File.open( TOKEN_LOCAL_FILE, &:readline ) ) < Time.now() then
-            File.open( TOKEN_LOCAL_FILE, "w" ) do |token_file|
-                # Opening the webpage to let it create the token needed to get
-                # authenticated from the server
-                driver = Selenium::WebDriver.for :firefox #assuming you're using firefox
-                driver.get( WEBSITE_BRAWLSTATS )
-                token_file.puts "#{Time.now() + TOKEN_EXPIRE_TIME}"
-                token_file.puts "#{driver.local_storage[ "token" ]}"
-            end
+        token = load_local_token()
+        unless token then
+            token = fetch_token()
+            fail unless token
+            save_local_token( token )
         end
-
-        # Reading the second line of the file and returning the requested token
-        return File.open( TOKEN_LOCAL_FILE, "r" ).readlines()[ 1 ]
+        token
     end
 
     def save_player_icon( badge_id )
@@ -155,5 +149,37 @@ class WebsiteInspector
             end
         end
         puts "...DONE o(^▽^)o"
+    end
+
+private
+
+    def fetch_token()
+        # Opening the webpage to let it create the token needed to get
+        # authenticated from the server
+        begin
+            driver = Selenium::WebDriver.for :firefox #assuming you're using firefox
+            driver.get( WEBSITE_BRAWLSTATS )
+            driver.local_storage[ :token ]
+        ensure
+            driver.quit
+        end
+    end
+
+    def load_local_token()
+        return if not File.exist?( TOKEN_LOCAL_FILE )
+        File.open( TOKEN_LOCAL_FILE, "r" ) do |token_file|
+            expiry_line = token_file.gets()
+            return if expiry_line.nil?
+            return if Time.parse( expiry_line ) < Time.now()
+            # Reading the second line of the file and returning the requested token
+            token_file.gets()
+        end
+    end
+
+    def save_local_token(token)
+        File.open( TOKEN_LOCAL_FILE, "w" ) do |token_file|
+            token_file.puts "#{Time.now() + TOKEN_EXPIRE_TIME}"
+            token_file.puts "#{token}"
+        end
     end
 end
