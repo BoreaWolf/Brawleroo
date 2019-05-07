@@ -374,8 +374,8 @@ class Players
                     create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Current Trophies", [ false, false ], true )
 
                     #   puts "Pre graph: #{output_file.cursor}"
-                    graph_data = { get_player_name( player_id ) => players_data_series[ "trophies" ][ get_player_name( player_id ) ],
-                                   player.name => players_data_series[ "trophies" ][ player.name ] }
+                    graph_data = { get_player_name( player_id ) => players_data_series[ "max_trophies" ][ get_player_name( player_id ) ],
+                                   player.name => players_data_series[ "max_trophies" ][ player.name ] }
                     create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Max trophies", [ true, true ], false, :line, [ 2, 2 ] )
 
                     # Creating a new page only if there is a new player to show
