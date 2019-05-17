@@ -38,6 +38,7 @@ end
 players.export_to_csv()
 players.update_players_csv_stats() if update
 players.create_graphs( ID_MINE )
+#   players.create_graphs( ID_OTHERS[ 0 ] )
 #   (0..6).to_a.each do |index|
 #       players.create_graphs( ID_OTHERS[ index ] )
 #   end
