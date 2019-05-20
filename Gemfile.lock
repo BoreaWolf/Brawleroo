@@ -20,6 +20,8 @@ GEM
     prawn (2.2.2)
       pdf-core (~> 0.7.0)
       ttfunk (~> 1.5)
+    prawn-table (0.2.2)
+      prawn (>= 1.3.0, < 3.0.0)
     rake (12.3.2)
     rubyzip (1.2.2)
     selenium-webdriver (3.142.0)
@@ -40,6 +42,7 @@ DEPENDENCIES
   fastimage!
   nokogiri!
   prawn!
+  prawn-table!
   selenium-webdriver!
   squid!
 

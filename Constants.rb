@@ -22,12 +22,13 @@ BRAWLER_ICON_EXT = ".png"
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
-ID_OTHERS = [ "U29P28CU",
+ID_FRIENDS = [ "U29P28CU",
               "20CQGUQUP",
               "VQYLLURL",
               "2U29GP8P0",
-              "8LY9VP2UV",
-              "2V9L0U29",
+              "8LY9VP2UV" ]
+
+ID_OTHERS = [ "2V9L0U29",
               "2009VJQ0Y",
               "PQJQPG2G",
               "8YCYURYL",
@@ -43,7 +44,7 @@ ID_OTHERS = [ "U29P28CU",
               "28LUY98",
               "2L892GP" ]
 
-IDS = [ ID_MINE, ID_OTHERS ].flatten
+IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS ].flatten
 
 # Regex
 REGEX_TROPHIES = /rank:\s*([a-zA-Z\s]*)\s*(\d+)\s*\/\s*(\d+)/
@@ -53,6 +54,7 @@ REGEX_BRAWLER = /([^0-9]*)\s+(\d+)\s*(\d+)[\s\/]*(\d+)/
 REGEX_FILE_LINE_STATS = /([^\t]*)\t([^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*)\t((([0-9]+\t[0-9]+\t[0-9]+)\t)*)/
 REGEX_FILE_LINE_CHAR_STATS = /((?<rank>[0-9]+)\t(?<trophies>[0-9]+)\t(?<max>[0-9]+))\t/
 REGEX_DATE_ONLY = /([0-9\/]+)/
+REGEX_TABLE_CELL_VALUE = /\[(?<sign>[+-]?)(?<value>\d+)\]/
 
 
 # Rarities and list of known brawlers
@@ -143,7 +145,9 @@ REAL_PAGE_DIM = [ PAGE_DIM[ 0 ] - 2 * PAGE_MARGIN, PAGE_DIM[ 1 ] - 2 * PAGE_MARG
 RATE_BRAWLER_NAME = 0.1
 RATE_BRAWLER_INFO = 0.45
 RATE_BRAWLER_GRAPH = 1 - RATE_BRAWLER_NAME - RATE_BRAWLER_INFO
+RATE_TABLE_COMPARISON = 1 - RATE_BRAWLER_NAME
 GRAPH_TIME_FORMAT = "%d %b %R"
+TABLE_MAX_PLAYERS_NUMBER = 5
 
 # Redefinition of the constant is annoying
 # Telling the interpreter to ignore these warnings

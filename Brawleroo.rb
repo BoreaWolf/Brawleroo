@@ -23,6 +23,7 @@ end
 update = ( ARGV[ 0 ] == "update" )
 
 players = Players.new( IDS )
+#   players = Players.new( [ ID_MINE, ID_FRIENDS ].flatten )
 players.update_stats() if update
 puts "#{players.printable_intro()}"
 puts "#{players.printable_full()}"

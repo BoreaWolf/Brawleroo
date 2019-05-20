@@ -8,6 +8,7 @@
 require "date"
 require "fastimage"
 require "prawn"
+require "prawn/table"
 require "squid"
 
 require "./Constants.rb"
@@ -279,6 +280,7 @@ class Players
             info_box_size = [ REAL_PAGE_DIM[ 0 ], REAL_PAGE_DIM[ 1 ] * RATE_BRAWLER_INFO ]
             split_box_size = [ info_box_size[ 0 ] / 2, info_box_size[ 1 ] ]
             player_image_box_size = [ REAL_PAGE_DIM[ 0 ] / 4, split_box_size[ 1 ] ]
+            table_box_size = [ REAL_PAGE_DIM[ 0 ], PAGE_DIM[ 1 ] * RATE_TABLE_COMPARISON ]
 
             # Personal progression graphs for each brawler
             output_file.font( "tf2build" )
@@ -298,7 +300,6 @@ class Players
                           "Solo: #{ref_player.victories.solo}", ]
             create_info_text_box( output_file, [ split_box_size[ 0 ], REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ], split_box_size, info_text )
 
-            # TODO: Fix the image reading it from the json of the player
             create_image_box( output_file,
                               [ ( REAL_PAGE_DIM[ 0 ] - player_image_box_size[ 0 ] ) / 2, REAL_PAGE_DIM[ 1 ] - name_box_size[ 1 ] ],
                               player_image_box_size,
@@ -370,6 +371,47 @@ class Players
                     end
                 end
             end
+
+            # Creating a final comparison table
+            # Each page will have a maximum of a predefined number of players to
+            # compare to
+            players_names = @player_list.map{ |player| player.name }.select{ |name| name != ref_player.name }
+            ref_player_trophies = players_data_series[ "trophies" ][ ref_player.name ].values + [ ref_player.trophies.trophies ]
+            comparison_page_number = 1
+            max_comparison_pages = ( @player_list.size - 1 ) / TABLE_MAX_PLAYERS_NUMBER
+            # Cycling on the subsets of player and create their comparison table
+            while not players_names.empty? do
+
+                output_file.start_new_page()
+
+                current_names = players_names.shift( TABLE_MAX_PLAYERS_NUMBER )
+
+                # Creating the data structure for the table for the current
+                # players
+                data = [ [ "" ] + ORDERED_CHARS.map{ |elem| elem[ 0 ] } + [ "Trophies" ] ]
+                data.append( [ ref_player.name ] + ref_player_trophies )
+                current_names.each do |player_name|
+                    current_player_trophies = players_data_series[ "trophies" ][ player_name ].values +
+                                              [ get_player_by_name( player_name ).trophies.trophies ]
+                    data.append( [ { :content => player_name, :colspan => 2 } ] + current_player_trophies )
+                    data.append( [ "REMOVE" ] + ref_player_trophies.zip( current_player_trophies )
+                                                                   .map{ |x,y| sprintf( "[%+d]", x-y ) } )
+                end
+                data = data.transpose
+                # The REMOVE element is just a placeholder in order to transpose the
+                # data correctly, since some elements of the first row will cover 2
+                # columns
+                data[ 0 ].delete( "REMOVE" )
+                
+                # Title of the page
+                create_title_box( output_file, [ 0, PAGE_DIM[ 1 ] - PAGE_MARGIN ], name_box_size, "Final comparison #{comparison_page_number}/#{max_comparison_pages}" )
+                # Table
+                create_table_box( output_file, [ 0, output_file.cursor ], table_box_size, data )
+
+                # Increasing the page counter
+                comparison_page_number += 1
+            end
+
         end
         puts "DONE (•̀o•́)ง"
     end
@@ -462,6 +504,77 @@ class Players
                                    :width => image_width,
                                    :height => image_height )
                 output_file.fill_color( previous_fill_color )
+            end
+        end
+    end
+
+    def create_table_box( output_file, starting_point, dimension, data )
+        # Deciding the width of the columns based on:
+        #  - reference player name
+        #  - rest of the player names length halved, because these names
+        #  will have two columns for them
+        #  - brawlers names
+        #  - max character length in the data table which is a 3 digit value
+        #  space and another 3 digit value with sign and parenthesis
+        #  (i.e. "301 [+102]")
+        # The final + 2 is just some space surrounding the name
+        max_length = [ data[ 0 ].select{ |name| name.is_a? String }
+                                .map{ |name| name.length }.max,
+                       data[ 0 ].select{ |name| name.is_a? Hash }
+                                .map{ |name| ( name[:content].length / 2.0 ).ceil }.max,
+                       CHARS.map{ |brawler, _, _| brawler.length}.max,
+                       12 ].max + 2
+        font_size = 11
+        font_pixel_conversion = 0.75
+        lengthoo = max_length * font_size * font_pixel_conversion
+
+        output_file.bounding_box( starting_point, :width => dimension[ 0 ], :height => dimension[ 1 ] ) do
+
+            output_file.font_size( font_size )
+            output_file.table( data,
+                               :position => :center,
+                               :column_widths => [ lengthoo ] * 2 + [ lengthoo / 2 ] * ( data[ 1 ].length - 2 ),
+                               :cell_style => { :font => "Courier", :font_style => :bold, :align => :center } ) do |table|
+
+                # Coloring the cells depending on their values
+                values = table.cells.columns( 2..-1 ).rows( 1..-1 ).filter{ |cell| cell.content.include? "[" }
+                # More trophies
+                above = values.filter do |cell|
+                    cell.content.match( REGEX_TABLE_CELL_VALUE )[ "sign" ] == "+" and cell.content.match( REGEX_TABLE_CELL_VALUE )[ "value" ] != "0"
+                end
+                above.text_color = "2EB82E"
+                # Fewer trophies
+                below = values.filter do |cell|
+                    cell.content.match( REGEX_TABLE_CELL_VALUE )[ "sign" ] == "-"
+                end
+                below.text_color = "FF0000"
+
+                # Borders: adding the borders to what I want
+                table.cells.borders = []
+                # First line
+                table.rows( 0 ).columns( 1..-1 ).borders = [ :bottom, :left ]
+                table.rows( 0 ).columns( 1..-1 ).border_width = [ 2, 1 ]
+                table.rows( 0 ).columns( 1..-1 ).border_line = [ :solid, :dotted ]
+                # First column having dotted on top and solid on the right side
+                table.rows( 1..-2 ).columns( 0 ).borders = [ :top, :right ]
+                table.rows( 1..-2 ).columns( 0 ).border_width = [ 1, 2 ]
+                table.rows( 1..-2 ).columns( 0 ).border_line = [ :dotted, :solid ]
+                # Left top corner cell
+                table.cells[ 0, 0 ].borders = [ :bottom, :right ]
+                table.cells[ 0, 0 ].border_width = 2
+                # Adding the left border in the compared players
+                ( 2..table.column_length - 1 ).step( 2 ).each do |col|
+                    table.columns( col ).rows( 1..-1 ).borders = [ :left ]
+                    table.columns( col ).rows( 1..-1 ).border_line = [ :dotted ]
+                end
+                # Adding the bottom line border
+                table.rows( 1..-2 ).columns( 1..-1 ).style{ |cell| cell.borders += [ :top ] and cell.border_line = [ :dotted ] }
+                # Last line
+                table.rows( table.row_length - 1 ).style{ |cell| cell.borders += [ :top ] and cell.border_line = [ :solid, :dotted ] }
+                # Left bottom corner cell
+                table.cells[ table.row_length - 1, 0 ].borders = [ :top, :right ]
+                table.cells[ table.row_length - 1, 0 ].border_width = [ 1, 2 ]
+                table.cells[ table.row_length - 1, 0 ].border_line = [ :solid ]
             end
         end
     end
