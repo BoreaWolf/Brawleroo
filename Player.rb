@@ -378,7 +378,7 @@ class Players
             players_names = @player_list.map{ |player| player.name }.select{ |name| name != ref_player.name }
             ref_player_trophies = players_data_series[ "trophies" ][ ref_player.name ].values + [ ref_player.trophies.trophies ]
             comparison_page_number = 1
-            max_comparison_pages = ( @player_list.size - 1 ) / TABLE_MAX_PLAYERS_NUMBER
+            max_comparison_pages = ( ( @player_list.size - 1 ) / ( TABLE_MAX_PLAYERS_NUMBER * 1.0 ) ).ceil
             # Cycling on the subsets of player and create their comparison table
             while not players_names.empty? do
 
