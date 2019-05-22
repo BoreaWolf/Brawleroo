@@ -22,29 +22,33 @@ BRAWLER_ICON_EXT = ".png"
 ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
-ID_FRIENDS = [ "U29P28CU",
-              "20CQGUQUP",
-              "VQYLLURL",
-              "2U29GP8P0",
-              "8LY9VP2UV" ]
+ID_FRIENDS = [ "U29P28CU",      # Wiser
+              "20CQGUQUP",      # GianluD88
+              "VQYLLURL",       # cdiego89
+              "2U29GP8P0",      # fedetoff
+              "8LY9VP2UV" ]     # Denaun
 
-ID_OTHERS = [ "2V9L0U29",
-              "2009VJQ0Y",
-              "PQJQPG2G",
-              "8YCYURYL",
-              "J8PRC802",
-              "2R20P2VC",
-              "2YV9P0JV8",
-              "LL0J2YG",
-              "JQ2LPRPV",
-              "2L8LLUJJV",
-              "8CJ090LV",
-              "2PJ09CGYR",
-              "CQL2GL2J",
-              "R0YLYCVL",
-              "28LUY98",
-              "2L892GP" ]
+ID_OTHERS = [ "2V9L0U29",       # Fabio mela
+              "2009VJQ0Y",      # il maniscalco
+              # "PQJQPG2G",     # MFB-Not8dmg-YT
+              # "8YCYURYL",     # medo
+              # "J8PRC802",     # TimFisenko
+              # "2R20P2VC",     # FroZy
+              # "2YV9P0JV8",    # Frozen
+              # "LL0J2YG",      # mouss
+              "JQ2LPRPV",       # Yonkijote
+              "2L8LLUJJV",      # bombers 2
+              "8CJ090LV",       # Dominant Jason
+              "2PJ09CGYR",      # Rodlers
+              "CQL2GL2J" ]      # Abdo
 
+ID_PROS = [ "R0YLYCVL",         # OneSick-
+            "28LUY98",          # OG
+            "2L892GP",          # YAPIMARU
+            "P292RQ",           # Ark
+            "GJP8ULV" ]         # BK | Nezz
+
+# The pros are currently excluded from the confrontation
 IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS ].flatten
 
 # Regex
@@ -91,7 +95,8 @@ CHARS = [ [ "Shelly", 0, 0 ],
           [ "Spike", 5, 5 ],
           [ "Crow", 5, 12 ],
           [ "Leon", 5, 23 ],
-          [ "Rosa", 1, 24 ] ]
+          [ "Rosa", 1, 24 ],
+          [ "Bibi", 3, 26 ] ]
 BRAWLSTATS_ID_CONSTANT = 16000000
 # Ordering the brawlers based on their rarity first and on their id
 # afterwards
