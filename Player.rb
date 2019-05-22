@@ -549,6 +549,13 @@ class Players
                 end
                 below.text_color = "FF0000"
 
+                # Coloring the names of the brawlers based on their rarity
+                last_row = 1
+                RARITY.each_with_index.map{ |r, i| [ r, CHARS.map{ |char| char[ 1 ] }.count( i ) ] }.each do |rarity, rows|
+                    table.rows( last_row..( last_row + rows - 1 ) ).columns( 0 ).background_color = RARITY_COLORS[ rarity ]
+                    last_row += rows
+                end
+
                 # Borders: adding the borders to what I want
                 table.cells.borders = []
                 # First line
