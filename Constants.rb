@@ -23,10 +23,10 @@ ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
 ID_FRIENDS = [ "U29P28CU",      # Wiser
-              "20CQGUQUP",      # GianluD88
-              "VQYLLURL",       # cdiego89
-              "2U29GP8P0",      # fedetoff
-              "8LY9VP2UV" ]     # Denaun
+               "20CQGUQUP",     # GianluD88
+               # "VQYLLURL",    # cdiego89
+               # "2U29GP8P0",   # fedetoff
+               "8LY9VP2UV" ]    # Denaun
 
 ID_OTHERS = [ "2V9L0U29",       # Fabio mela
               "2009VJQ0Y",      # il maniscalco
@@ -40,7 +40,8 @@ ID_OTHERS = [ "2V9L0U29",       # Fabio mela
               "2L8LLUJJV",      # bombers 2
               "8CJ090LV",       # Dominant Jason
               "2PJ09CGYR",      # Rodlers
-              "CQL2GL2J" ]      # Abdo
+              "CQL2GL2J",       # Abdo
+              "8VG022Y0" ]      # mouss
 
 ID_PROS = [ "R0YLYCVL",         # OneSick-
             "28LUY98",          # OG
@@ -48,8 +49,11 @@ ID_PROS = [ "R0YLYCVL",         # OneSick-
             "P292RQ",           # Ark
             "GJP8ULV" ]         # BK | Nezz
 
+ID_YT = [ "208UR80",            # KairosTime
+          "Y2QPGG" ]            # Lex
+
 # The pros are currently excluded from the confrontation
-IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS ].flatten
+IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS, ID_YT ].flatten
 
 # Regex
 REGEX_TROPHIES = /rank:\s*([a-zA-Z\s]*)\s*(\d+)\s*\/\s*(\d+)/

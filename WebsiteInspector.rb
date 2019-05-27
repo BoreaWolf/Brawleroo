@@ -159,7 +159,7 @@ private
         begin
             driver = Selenium::WebDriver.for :firefox #assuming you're using firefox
             driver.get( WEBSITE_BRAWLSTATS )
-            driver.local_storage[ :token ]
+            driver.manage.cookie_named( "token" )[ :value ]
         ensure
             driver.quit
         end
@@ -176,7 +176,7 @@ private
         end
     end
 
-    def save_local_token(token)
+    def save_local_token( token )
         File.open( TOKEN_LOCAL_FILE, "w" ) do |token_file|
             token_file.puts "#{Time.now() + TOKEN_EXPIRE_TIME}"
             token_file.puts "#{token}"
