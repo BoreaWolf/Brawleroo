@@ -534,7 +534,11 @@ class Players
             output_file.table( data,
                                :position => :center,
                                :column_widths => [ lengthoo ] * 2 + [ lengthoo / 2 ] * ( data[ 1 ].length - 2 ),
-                               :cell_style => { :font => "Courier", :font_style => :bold, :align => :center } ) do |table|
+                               :cell_style => { :font => "Courier", :align => :center } ) do |table|
+
+                # Highlighting the first row and column of the table
+                table.columns( 0 ).font_style = :bold
+                table.rows( 0 ).font_style = :bold
 
                 # Coloring the cells depending on their values
                 values = table.cells.columns( 2..-1 ).rows( 1..-1 ).filter{ |cell| cell.content.include? "[" }
@@ -548,6 +552,10 @@ class Players
                     cell.content.match( REGEX_TABLE_CELL_VALUE )[ "sign" ] == "-"
                 end
                 below.text_color = "FF0000"
+
+                # Highlighting brawlers that are at max rank
+                values = table.cells.columns( 1..-1 ).rows( 1..-2 ).filter{ |cell| cell.content.to_i >= BRAWLER_RANKS[ -1 ] }
+                values.font_style = :bold
 
                 # Coloring the names of the brawlers based on their rarity
                 last_row = 1

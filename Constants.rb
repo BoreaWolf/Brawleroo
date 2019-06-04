@@ -40,6 +40,7 @@ ID_OTHERS = [ "2V9L0U29",       # Fabio mela
               "2L8LLUJJV",      # bombers 2
               "8CJ090LV",       # Dominant Jason
               "2PJ09CGYR",      # Rodlers
+              "PQQ0RCPL",       # Marko Santos Jr
               "CQL2GL2J",       # Abdo
               "8VG022Y0" ]      # mouss
 
@@ -75,6 +76,7 @@ RARITY_COLORS = { "Common" => "94D7F4",
                   "Epic" => "B116ED",
                   "Mythic" => "D6001A",
                   "Legendary" => "FFF11E" }
+MAX_RANK_COLOR =  "8C28bC" # "E438F8"
 CHARS = [ [ "Shelly", 0, 0 ],
           [ "Nita", 0, 8 ],
           [ "Colt", 0, 1 ],
