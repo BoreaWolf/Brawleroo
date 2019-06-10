@@ -30,7 +30,7 @@ class Experience
     def compute_level()
         @level = 1
         accumulated_exp = 0
-        while ( accumulated_exp + experience_to_next_level() ) < @total do
+        while ( accumulated_exp + experience_to_next_level() ) <= @total do
             accumulated_exp += experience_to_next_level()
             @level += 1
         end
