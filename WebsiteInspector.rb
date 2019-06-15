@@ -67,34 +67,26 @@ class WebsiteInspector
 
         # For this website I need to send two requests: OPTIONS and GET
         if online or not File.exists?( "#{DIR_WEBPAGES}/#{id}.brawlstats" ) then
-            puts "Saving locally information about player #{id}..."
-
-            uri = URI( "#{WEBSITE_BRAWLSTATS_API}/#{id}" )
-            # Request headers
-            initheader_get =
-                {
-                    "Accept" => "application/json",
-                    "Accept-Encoding" => "deflate",
-                    "Accept-Language" => "en-GB,en;q=0.5",
-                    "Authorization" => "Bearer #{get_token()}",
-                    "Cache-Control" => "max-age=0",
-                    "Connection" => "keep-alive"
-                    #   "If-None-Match" => "W/\"8d21-gZoGlc23SWuTVuI9b/BOGP4IAl4"
-                }
-
-            Net::HTTP.start( uri.hostname, uri.port, :use_ssl => true ) do |http|
-                # Requesting the page with the generated header
-                res = http.get( uri, initheader_get )
-
-                # Saving JSON data on file
-                File.open( "#{DIR_WEBPAGES}/#{id}.brawlstats", "w" ) do |save_file|
-                    save_file.write( res.body )
-                end
-            end
+            save_player_data_locally( id )
         end
+
+        puts "Reading info about player #{id}..."
 
         # Reading info from the JSON data
         player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
+
+        tries = 0
+        while player_data == nil or tries < 3 
+            save_player_data_locally( id )
+            player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
+            # Avoiding to show myself again, so changing token identifier
+            if player_data and player_data.key?( "status" ) and player_data[ "status" ] == 429 then
+                save_player_data_locally( id, true )
+                player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
+            end
+            tries += 1
+        end
+
         player_data = player_data[ "playerProfile" ]
 
         # Composing the info of the player
@@ -128,14 +120,47 @@ class WebsiteInspector
         end
     end
 
-    def get_token()
-        # Reading the local token file if it is expired then I will get a
-        # new one
-        token = load_local_token()
-        unless token then
+    def save_player_data_locally( id, force_token = false )
+        puts "Saving locally information about player #{id} [forcing token #{force_token}]..."
+
+        uri = URI( "#{WEBSITE_BRAWLSTATS_API}/#{id}" )
+        # Request headers
+        initheader_get =
+            {
+                "Accept" => "application/json",
+                "Accept-Encoding" => "deflate",
+                "Accept-Language" => "en-GB,en;q=0.5",
+                "Authorization" => "Bearer #{get_token( force_token )}",
+                "Cache-Control" => "max-age=0",
+                "Connection" => "keep-alive"
+                #   "If-None-Match" => "W/\"8d21-gZoGlc23SWuTVuI9b/BOGP4IAl4"
+            }
+
+        Net::HTTP.start( uri.hostname, uri.port, :use_ssl => true ) do |http|
+            # Requesting the page with the generated header
+            res = http.get( uri, initheader_get )
+
+            # Saving JSON data on file
+            File.open( "#{DIR_WEBPAGES}/#{id}.brawlstats", "w" ) do |save_file|
+                save_file.write( res.body )
+            end
+        end
+    end
+
+    def get_token( force_token )
+        # Forcing a new token from the website
+        if force_token then
             token = fetch_token()
-            fail unless token
             save_local_token( token )
+        else
+            # Reading the local token file if it is expired then I will get a
+            # new one
+            token = load_local_token()
+            unless token then
+                token = fetch_token()
+                fail unless token
+                save_local_token( token )
+            end
         end
         token
     end
