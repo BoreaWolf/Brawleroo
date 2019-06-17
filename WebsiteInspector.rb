@@ -75,8 +75,9 @@ class WebsiteInspector
         # Reading info from the JSON data
         player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
 
+        # Trying to update the profile for three times max to gather his info
         tries = 0
-        while player_data == nil or tries < 3 
+        while not player_data.key?( "playerProfile" ) and tries < 3 
             save_player_data_locally( id )
             player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
             # Avoiding to show myself again, so changing token identifier
@@ -85,6 +86,12 @@ class WebsiteInspector
                 player_data = JSON.parse( File.read( "./#{DIR_WEBPAGES}/#{id}.brawlstats" ) )
             end
             tries += 1
+        end
+
+        # If the player data is still does not have 
+        if not player_data.key?( "playerProfile" ) then
+            puts "read_stats_brawlstats::ERROR while reading #{id} player profile after trying #{tries} times."
+            exit( -1 )
         end
 
         player_data = player_data[ "playerProfile" ]

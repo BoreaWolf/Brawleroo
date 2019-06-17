@@ -324,10 +324,14 @@ class Players
                 create_title_box( output_file, [ 0, output_file.cursor ], name_box_size, char_name.upcase )
 
                 # Written info box
+                # This DOES NOT work on 
+                difference = player_progression[ char_name ][ "Trophies" ].to_a().reverse()[ 0..1 ].map{ |x| x[ 1 ] }
+                difference = difference[ 0 ] - difference[ 1 ] if difference.size() == 2
                 info_text = [ "Power Level: #{player_progression[ char_name ][ "Power" ].to_a.last()[ 1 ]}",
                               "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}",
                               "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}",
-                              "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}" ]
+                              "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}",
+                              "Last progression: #{"+" if difference > 0}#{difference}" ]
                 create_info_text_box( output_file, [ 0, output_file.cursor ], split_box_size, info_text )
 
                 # Brawler image
