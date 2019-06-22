@@ -235,7 +235,6 @@ class Players
         # Each line of the file corresponds to a day of data
         # Need to create an array of characters with the data divided by day
         data_selectors = [ "Power", "Trophies", "Max_Trophies", "Rank" ]
-        char_names = [ ref_player.name, CHARS.map{ |x| x[ 0 ] } ].flatten
         char_ids = CHARS.map{ |x| x[ 2 ] }
         player_progression = Hash.new
         [ ref_player.name, char_ids ].flatten.each do |char_name|
@@ -247,15 +246,19 @@ class Players
 
         # Reading the progression of the player from his json file 
         player_json_data = JSON.parse( File.read( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_JSON_EXT}" ) )
-        #   puts "#{File.read( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_JSON_EXT}" )}"
         # I need to restrict the data to a maximum of 15 days, therefore I only
         # take in consideration the 15 more recent updates
-        player_json_data.keys.sort[ -DAYS_TO_PRINT..player_json_data.keys.size ].each do |current_date|
+        dates = player_json_data.keys
+        if dates.size > DAYS_TO_PRINT then
+            dates = player_json_data.keys.sort[ -DAYS_TO_PRINT..player_json_data.keys.size ]
+        end
+        dates.each do |current_date|
             # Finding info of the player
             data_selectors.select{ |x| x != "Power" }.each do |data_selector|
                 player_progression[ ref_player.name ][ data_selector ][ current_date ] = player_json_data[ current_date ][ "trophies" ][ data_selector.downcase ]
             end
 
+            # Finding the info of each brawler
             char_ids.each do |char_id|
                 player_progression[ char_id ][ "Power" ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "power" ]
                 data_selectors.select{ |x| x != "Power" }.each do |data_selector|
@@ -263,43 +266,6 @@ class Players
                 end
             end
         end
-
-        #   # NOTE: The problem is probably the labels being too long and unable to
-        #   # fit more than 15 in the same page
-        #   # The graphs can contain a maximum of 15 data elements on the x-axis
-        #   # I will only read the last 15 lines of the file using a unix command
-        #   # and then splitting the returned string into an array of the lines
-        #   lines = `tail -n #{LINES_TO_READ} #{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}`
-        #   #   File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
-        #   lines.split( "\n" ).each do |daily_line|
-        #       daily_data = daily_line.match( REGEX_FILE_LINE_STATS )
-        #       # If I leave only the date, updates happening on the same day will
-        #       # be ignored
-        #       #   current_date = daily_data[ 1 ].match( REGEX_DATE_ONLY )[ 0 ]
-        #       current_date = daily_data[ 1 ]
-        #       char_names.each do |char_name|
-        #           data_selectors.each do |data_selector|
-        #               player_progression[ char_name ][ data_selector ][ current_date ] = 0
-        #           end
-        #       end
-
-        #       # Working only on the third match of the daily data
-        #       # TODO: Player rank is not correct at the moment
-        #       # When reading the data from file I have to keep the order of the
-        #       # CHARS structure to respect eventual new brawlers and not confuse
-        #       # their data with others
-        #       daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
-        #           char_data.each_with_index do |char_stat, j|
-        #               player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
-        #               player_progression[ ref_player.name ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
-        #           end
-        #           # TODO: Find a way to pass the Brawler class name from the class
-        #           # itself and not as a typed String
-        #           if player_progression[ CHARS[ index ][ 0 ] ][ "Power" ][ current_date ] > 0 then
-        #               player_progression[ CHARS[ index ][ 0 ] ][ "Rank" ][ current_date ] = Trophies.find_rank( player_progression[ CHARS[ index ][ 0 ] ][ "Max" ][ current_date ], "Brawler" )
-        #           end
-        #       end
-        #   end
 
         # Comparisons with other players, one page per player
         # Creating a graph with all brawlers on the x-axis and their trophies on
