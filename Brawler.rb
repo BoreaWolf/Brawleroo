@@ -44,6 +44,10 @@ class Brawler
         return "#{@power}\t#{@trophies.trophies}\t#{@trophies.max_trophies}"
     end
 
+    def export_to_json()
+        return { "power": @power, "trophies": @trophies.export_to_json() }
+    end
+
     def self.compare( a, b )
         result = Brawler.new( a.name, a.rarity )
         result.power = "#{a.power} vs #{b.power}"
@@ -99,6 +103,14 @@ class Brawlers
         result = ""
         CHARS.each do |char_name, _, _|
             result += "#{get_brawler( char_name ).export_to_csv()}\t"
+        end
+        return result
+    end
+
+    def export_to_json()
+        result = {}
+        ORDERED_CHARS.each do |name, _, id|
+            result[ id ] = get_brawler( name ).export_to_json()
         end
         return result
     end

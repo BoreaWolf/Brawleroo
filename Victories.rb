@@ -28,6 +28,10 @@ class Victories
         return "#{@trio}\t#{@duo}\t#{@solo}"
     end
 
+    def export_to_json()
+        return { "trio": @trio, "duo": @duo, "solo": @solo }
+    end
+
     def self.compare( a, b )
         result = Victories.new()
         result.trio = a.trio - b.trio

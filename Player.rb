@@ -7,6 +7,7 @@
 
 require "date"
 require "fastimage"
+require "json"
 require "prawn"
 require "prawn/table"
 require "squid"
@@ -79,12 +80,37 @@ class Player
             export_file.write( "#{Time.now.strftime( "%Y/%m/%d_%H:%M" )}\t#{export_to_csv()}\n" )
         end
     end
+    
+    def update_file_stats()
+        current_data = {}
+        if File.exists?( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_JSON_EXT}" ) then
+            current_data = JSON.parse( File.read( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_JSON_EXT}" ) )
+        end
+        current_data[ Time.now.strftime( EXPORT_FILE_TIME_FORMAT ) ] = export_to_json()
+        
+        File.open( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_JSON_EXT}", "w" ) do |export_file|
+            export_file.write( JSON.generate( current_data ) )
+        end
+    end
 
     def export_to_csv()
         result = "#{name}\t#{id}\t#{trophies.export_to_csv()}\t"
         result += "#{victories.export_to_csv()}\t"
         result += "#{brawlers.export_to_csv()}"
         result
+    end
+
+    def export_to_json()
+        # I need to create the json structure for the player
+        result = {}
+        result[ "id" ] = @id
+        result[ "name" ] = @name
+        result[ "image" ] = @image
+        result[ "experience" ] = @experience.export_to_json()
+        result[ "trophies" ] = @trophies.export_to_json()
+        result[ "victories" ] = @victories.export_to_json()
+        result[ "brawlers" ] = @brawlers.export_to_json()
+        return result
     end
 
     def to_pdf_title_string()
@@ -155,6 +181,15 @@ class Players
         puts "DONE (•̀o•́)ง"
     end
 
+    def update_players_file_stats()
+        print "Updating players stats."
+        @player_list.each do |player|
+            player.update_file_stats()
+            print "."
+        end
+        puts "DONE (•̀o•́)ง"
+    end
+
     def export_to_csv()
         print "Exporting data to '#{EXPORT_FILE_DIR}/#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}'..."
         File.open( "#{EXPORT_FILE_DIR}/#{EXPORT_FILE_NAME}#{EXPORT_FILE_EXT}", "w" ) do |export_file|
@@ -198,53 +233,73 @@ class Players
         # Personal progression graphs
         # Reading the file of the player
         # Each line of the file corresponds to a day of data
-        # Need to create an array of characters with the data dividede by day
-        data_selectors = [ "Power", "Trophies", "Max", "Rank" ]
+        # Need to create an array of characters with the data divided by day
+        data_selectors = [ "Power", "Trophies", "Max_Trophies", "Rank" ]
         char_names = [ ref_player.name, CHARS.map{ |x| x[ 0 ] } ].flatten
+        char_ids = CHARS.map{ |x| x[ 2 ] }
         player_progression = Hash.new
-        char_names.each do |char_name|
+        [ ref_player.name, char_ids ].flatten.each do |char_name|
             player_progression[ char_name ] = Hash.new
             data_selectors.each do |data_selector|
                 player_progression[ char_name ][ data_selector ] = Hash.new
             end
         end
 
-        # NOTE: The problem is probably the labels being too long and unable to
-        # fit more than 15 in the same page
-        # The graphs can contain a maximum of 15 data elements on the x-axis
-        # I will only read the last 15 lines of the file using a unix command
-        # and then splitting the returned string into an array of the lines
-        lines = `tail -n #{LINES_TO_READ} #{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}`
-        #   File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
-        lines.split( "\n" ).each do |daily_line|
-            daily_data = daily_line.match( REGEX_FILE_LINE_STATS )
-            # If I leave only the date, updates happening on the same day will
-            # be ignored
-            #   current_date = daily_data[ 1 ].match( REGEX_DATE_ONLY )[ 0 ]
-            current_date = daily_data[ 1 ]
-            char_names.each do |char_name|
-                data_selectors.each do |data_selector|
-                    player_progression[ char_name ][ data_selector ][ current_date ] = 0
-                end
+        # Reading the progression of the player from his json file 
+        player_json_data = JSON.parse( File.read( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_JSON_EXT}" ) )
+        #   puts "#{File.read( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_JSON_EXT}" )}"
+        # I need to restrict the data to a maximum of 15 days, therefore I only
+        # take in consideration the 15 more recent updates
+        player_json_data.keys.sort[ -DAYS_TO_PRINT..player_json_data.keys.size ].each do |current_date|
+            # Finding info of the player
+            data_selectors.select{ |x| x != "Power" }.each do |data_selector|
+                player_progression[ ref_player.name ][ data_selector ][ current_date ] = player_json_data[ current_date ][ "trophies" ][ data_selector.downcase ]
             end
 
-            # Working only on the third match of the daily data
-            # TODO: Player rank is not correct at the moment
-            # When reading the data from file I have to keep the order of the
-            # CHARS structure to respect eventual new brawlers and not confuse
-            # their data with others
-            daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
-                char_data.each_with_index do |char_stat, j|
-                    player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
-                    player_progression[ ref_player.name ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
-                end
-                # TODO: Find a way to pass the Brawler class name from the class
-                # itself and not as a typed String
-                if player_progression[ CHARS[ index ][ 0 ] ][ "Power" ][ current_date ] > 0 then
-                    player_progression[ CHARS[ index ][ 0 ] ][ "Rank" ][ current_date ] = Trophies.find_rank( player_progression[ CHARS[ index ][ 0 ] ][ "Max" ][ current_date ], "Brawler" )
+            char_ids.each do |char_id|
+                player_progression[ char_id ][ "Power" ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "power" ]
+                data_selectors.select{ |x| x != "Power" }.each do |data_selector|
+                    player_progression[ char_id ][ data_selector ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "trophies" ][ data_selector.downcase ]
                 end
             end
         end
+
+        #   # NOTE: The problem is probably the labels being too long and unable to
+        #   # fit more than 15 in the same page
+        #   # The graphs can contain a maximum of 15 data elements on the x-axis
+        #   # I will only read the last 15 lines of the file using a unix command
+        #   # and then splitting the returned string into an array of the lines
+        #   lines = `tail -n #{LINES_TO_READ} #{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}`
+        #   #   File.open( "#{EXPORT_FILE_DIR}/#{player_id}#{EXPORT_FILE_EXT}", "r" ).each do |daily_line|
+        #   lines.split( "\n" ).each do |daily_line|
+        #       daily_data = daily_line.match( REGEX_FILE_LINE_STATS )
+        #       # If I leave only the date, updates happening on the same day will
+        #       # be ignored
+        #       #   current_date = daily_data[ 1 ].match( REGEX_DATE_ONLY )[ 0 ]
+        #       current_date = daily_data[ 1 ]
+        #       char_names.each do |char_name|
+        #           data_selectors.each do |data_selector|
+        #               player_progression[ char_name ][ data_selector ][ current_date ] = 0
+        #           end
+        #       end
+
+        #       # Working only on the third match of the daily data
+        #       # TODO: Player rank is not correct at the moment
+        #       # When reading the data from file I have to keep the order of the
+        #       # CHARS structure to respect eventual new brawlers and not confuse
+        #       # their data with others
+        #       daily_data[ 3 ].scan( REGEX_FILE_LINE_CHAR_STATS ).each_with_index do |char_data, index|
+        #           char_data.each_with_index do |char_stat, j|
+        #               player_progression[ CHARS[ index ][ 0 ] ][ data_selectors[ j ] ][ current_date ] = char_stat.to_i
+        #               player_progression[ ref_player.name ][ data_selectors[ j ] ][ current_date ] += char_stat.to_i
+        #           end
+        #           # TODO: Find a way to pass the Brawler class name from the class
+        #           # itself and not as a typed String
+        #           if player_progression[ CHARS[ index ][ 0 ] ][ "Power" ][ current_date ] > 0 then
+        #               player_progression[ CHARS[ index ][ 0 ] ][ "Rank" ][ current_date ] = Trophies.find_rank( player_progression[ CHARS[ index ][ 0 ] ][ "Max" ][ current_date ], "Brawler" )
+        #           end
+        #       end
+        #   end
 
         # Comparisons with other players, one page per player
         # Creating a graph with all brawlers on the x-axis and their trophies on
@@ -314,7 +369,7 @@ class Players
             output_file.start_new_page()
 
             # Creating the graphs based on their ordered list
-            ORDERED_CHARS.each do |char_name, char_rarity, _|
+            ORDERED_CHARS.each do |char_name, char_rarity, char_id|
 
                 #   output_file.font( fonts[ font_index ] )
                 #   font_index = ( font_index + 1 ) % fonts.size
@@ -325,12 +380,12 @@ class Players
 
                 # Written info box
                 # This DOES NOT work on 
-                difference = player_progression[ char_name ][ "Trophies" ].to_a().reverse()[ 0..1 ].map{ |x| x[ 1 ] }
+                difference = player_progression[ char_id ][ "Trophies" ].to_a().reverse()[ 0..1 ].map{ |x| x[ 1 ] }
                 difference = difference[ 0 ] - difference[ 1 ] if difference.size() == 2
-                info_text = [ "Power Level: #{player_progression[ char_name ][ "Power" ].to_a.last()[ 1 ]}",
-                              "Current trophies: #{player_progression[ char_name ][ "Trophies" ].to_a().last()[ 1 ]}",
-                              "Max trophies: #{player_progression[ char_name ][ "Max" ].to_a().last()[ 1 ]}",
-                              "Rank: #{player_progression[ char_name ][ "Rank" ].to_a.last()[ 1 ]}",
+                info_text = [ "Power Level: #{player_progression[ char_id ][ "Power" ].to_a.last()[ 1 ]}",
+                              "Current trophies: #{player_progression[ char_id ][ "Trophies" ].to_a().last()[ 1 ]}",
+                              "Max trophies: #{player_progression[ char_id ][ "Max_Trophies" ].to_a().last()[ 1 ]}",
+                              "Rank: #{player_progression[ char_id ][ "Rank" ].to_a.last()[ 1 ]}",
                               "Last progression: #{"+" if difference > 0}#{difference}" ]
                 create_info_text_box( output_file, [ 0, output_file.cursor ], split_box_size, info_text )
 
@@ -341,8 +396,8 @@ class Players
                                   "#{IMAGES_DIR}/#{char_name.gsub( " ", "_" )}_Skin-Default.png" )
 
                 # Brawler progression graph
-                graph_data = { "Max" => create_cute_hash( player_progression[ char_name ][ "Max" ] ),
-                               "Trophies" => create_cute_hash( player_progression[ char_name ][ "Trophies" ] ) }
+                graph_data = { "Max" => create_cute_hash( player_progression[ char_id ][ "Max_Trophies" ] ),
+                               "Trophies" => create_cute_hash( player_progression[ char_id ][ "Trophies" ] ) }
                 create_graph_box( output_file, [ 0, output_file.cursor ], graph_box_size, graph_data, "Trophies progression", [ true, true ], true, :line, [ 1, 2 ] )
 
                 # Starting a new page for the next brawler

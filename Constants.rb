@@ -77,6 +77,7 @@ RARITY_COLORS = { "Common" => "94D7F4",
                   "Mythic" => "D6001A",
                   "Legendary" => "FFF11E" }
 MAX_RANK_COLOR =  "8C28bC" # "E438F8"
+# CHARS: [ <name>, <rarity_id>, <id> ]
 CHARS = [ [ "Shelly", 0, 0 ],
           [ "Nita", 0, 8 ],
           [ "Colt", 0, 1 ],
@@ -148,7 +149,9 @@ BRAWLER_RANKS = [ 0, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160, 180, 220, 260, 
 EXPORT_FILE_DIR = "./Stats"
 EXPORT_FILE_NAME = "full_exported_stats"
 EXPORT_FILE_EXT = ".csv"
-LINES_TO_READ = 15
+EXPORT_FILE_JSON_EXT = ".json"
+EXPORT_FILE_TIME_FORMAT = "%Y/%m/%d_%H:%M"
+DAYS_TO_PRINT = 15
 
 IMAGES_DIR = "./Images"
 PAGE_DIM = [ 1000, 700 ]

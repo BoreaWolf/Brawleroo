@@ -36,8 +36,8 @@ player_compared_stats.each do |player_comparison|
 end
 
 # Exporting data to csv file
-players.export_to_csv()
-players.update_players_csv_stats() if update
+#   players.export_to_csv()
+players.update_players_file_stats() if update
 players.create_graphs( ID_MINE )
 #   players.create_graphs( ID_OTHERS[ 0 ] )
 #   (0..1).to_a.each do |index|

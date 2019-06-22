@@ -46,6 +46,10 @@ class Experience
         return "Level: #{@level}\tExperience: #{@current}/#{@to_next_level} (#{@total})"
     end
 
+    def export_to_json()
+        return @total
+    end
+
     def self.compare( a, b )
         result = Experience.new()
         result.level = a.level - b.level

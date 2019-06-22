@@ -37,6 +37,10 @@ class Trophies
         return "#{@rank}\t#{@trophies}\t#{@max_trophies}"
     end
 
+    def export_to_json()
+        return { "rank": @rank, "trophies": @trophies, "max_trophies": @max_trophies }
+    end
+
     def self.compare( a, b )
         result = Trophies.new()
         result.rank = "#{a.rank} vs #{b.rank}"
@@ -53,6 +57,7 @@ class Trophies
             end
             return PLAYER_RANKS[ index - 1 ][ 1 ]
         elsif object_class == "Brawler" then
+            return 0 if trophies == 0 
             while index < BRAWLER_RANKS.length and trophies >= BRAWLER_RANKS[ index ] do
                 index += 1
             end
