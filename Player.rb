@@ -88,9 +88,7 @@ class Player
         end
         current_data[ Time.now.strftime( EXPORT_FILE_TIME_FORMAT ) ] = export_to_json()
         
-        File.open( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_JSON_EXT}", "w" ) do |export_file|
-            export_file.write( JSON.generate( current_data ) )
-        end
+        File.open( "#{EXPORT_FILE_DIR}/#{id}#{EXPORT_FILE_JSON_EXT}", "w" ).write( JSON.generate( current_data ) )
     end
 
     def export_to_csv()
@@ -260,9 +258,18 @@ class Players
 
             # Finding the info of each brawler
             char_ids.each do |char_id|
-                player_progression[ char_id ][ "Power" ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "power" ]
-                data_selectors.select{ |x| x != "Power" }.each do |data_selector|
-                    player_progression[ char_id ][ data_selector ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "trophies" ][ data_selector.downcase ]
+                # Checking if the data is there for all brawlers
+                # When new brawlers are added to the game there is no history of
+                # them so I set them to all 0s
+                if player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ].nil? then
+                    data_selectors.each do |data_selector|
+                        player_progression[ char_id ][ data_selector ][ current_date ] = 0
+                    end
+                else
+                    player_progression[ char_id ][ "Power" ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "power" ]
+                    data_selectors.select{ |x| x != "Power" }.each do |data_selector|
+                        player_progression[ char_id ][ data_selector ][ current_date ] = player_json_data[ current_date ][ "brawlers" ][ char_id.to_s ][ "trophies" ][ data_selector.downcase ]
+                    end
                 end
             end
         end

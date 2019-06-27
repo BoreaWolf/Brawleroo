@@ -103,7 +103,8 @@ CHARS = [ [ "Shelly", 0, 0 ],
           [ "Crow", 5, 12 ],
           [ "Leon", 5, 23 ],
           [ "Rosa", 1, 24 ],
-          [ "Bibi", 3, 26 ] ]
+          [ "Bibi", 3, 26 ],
+          [ "Tick", 0, 22 ] ]
 BRAWLSTATS_ID_CONSTANT = 16000000
 # Ordering the brawlers based on their rarity first and on their id
 # afterwards
