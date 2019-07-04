@@ -546,16 +546,19 @@ class Players
         #  - rest of the player names length halved, because these names
         #  will have two columns for them
         #  - brawlers names
-        #  - max character length in the data table which is a 3 digit value
-        #  space and another 3 digit value with sign and parenthesis
-        #  (i.e. "301 [+102]")
+        #  - max character length in the data table which is a 4 digit value
+        #  space and another 4 digit value with sign and parenthesis
+        #  (i.e. " 301  [+102] ")
+        #  - max trophies per character in the data table. The biggest is the
+        #  comparison of the total which can have 4-4 digits numbers or 3-5.
+        #  (i.e. " 863 [+10038] ")
         # The final + 2 is just some space surrounding the name
         max_length = [ data[ 0 ].select{ |name| name.is_a? String }
                                 .map{ |name| name.length }.max,
                        data[ 0 ].select{ |name| name.is_a? Hash }
                                 .map{ |name| ( name[:content].length / 2.0 ).ceil }.max,
                        CHARS.map{ |brawler, _, _| brawler.length}.max,
-                       12 ].max + 2
+                       14 ].max + 2
         font_size = 11
         font_pixel_conversion = 0.75
         lengthoo = max_length * font_size * font_pixel_conversion

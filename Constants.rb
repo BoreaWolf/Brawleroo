@@ -23,13 +23,13 @@ ID_MINE = "2UR0L90P2"
 # TODO: Problem with Chinese name formatting when creating the pdf. It is an
 # open problem with Prawn gem.
 ID_FRIENDS = [ "U29P28CU",      # Wiser
-               "20CQGUQUP",     # GianluD88
+               # "20CQGUQUP",   # GianluD88
                # "VQYLLURL",    # cdiego89
                # "2U29GP8P0",   # fedetoff
                "8LY9VP2UV" ]    # Denaun
 
 ID_OTHERS = [ "2V9L0U29",       # Fabio mela
-              "2009VJQ0Y",      # il maniscalco
+              # "2009VJQ0Y",    # il maniscalco
               # "PQJQPG2G",     # MFB-Not8dmg-YT
               # "8YCYURYL",     # medo
               # "J8PRC802",     # TimFisenko
@@ -37,12 +37,16 @@ ID_OTHERS = [ "2V9L0U29",       # Fabio mela
               # "2YV9P0JV8",    # Frozen
               # "LL0J2YG",      # mouss
               "JQ2LPRPV",       # Yonkijote
-              "2L8LLUJJV",      # bombers 2
+              # "2L8LLUJJV",    # bombers 2
+              # "8VG022Y0",     # mouss
+              "89GQ2JG8",       # Kenzy
+              "22RC20UQ0",      # Coconut
               "8CJ090LV",       # Dominant Jason
               "2PJ09CGYR",      # Rodlers
               "PQQ0RCPL",       # Marko Santos Jr
               "CQL2GL2J",       # Abdo
-              "8VG022Y0" ]      # mouss
+              "GJCPVVL",        # Ggem
+              "280U92L0" ]      # ROBER
 
 ID_PROS = [ "R0YLYCVL",         # OneSick-
             "28LUY98",          # OG
