@@ -128,7 +128,7 @@ class WebsiteInspector
     end
 
     def save_player_data_locally( id, force_token = false )
-        puts "Saving locally information about player #{id} [forcing token #{force_token}]..."
+        puts "Saving locally information about player #{id}#{" [new token]" if force_token}..."
 
         uri = URI( "#{WEBSITE_BRAWLSTATS_API}/#{id}" )
         # Request headers
@@ -157,14 +157,14 @@ class WebsiteInspector
     def get_token( force_token )
         # Forcing a new token from the website
         if force_token then
-            token = fetch_token()
+            token = fetch_token( 0 )
             save_local_token( token )
         else
             # Reading the local token file if it is expired then I will get a
             # new one
             token = load_local_token()
             unless token then
-                token = fetch_token()
+                token = fetch_token( 0 )
                 fail unless token
                 save_local_token( token )
             end
@@ -185,13 +185,21 @@ class WebsiteInspector
 
 private
 
-    def fetch_token()
+    def fetch_token( tries )
         # Opening the webpage to let it create the token needed to get
         # authenticated from the server
         begin
             driver = Selenium::WebDriver.for :firefox #assuming you're using firefox
             driver.get( WEBSITE_BRAWLSTATS )
             driver.manage.cookie_named( "token" )[ :value ]
+        rescue Selenium::WebDriver::Error::NoSuchCookieError
+            if tries < 3 then
+                puts "fetch_token::WARNING: Something went wrong while reading the cookie, trying again.."
+                fetch_token( tries + 1 )
+            else
+                puts "fetch_token::ERROR: Tried #{tries} times to fetch the cookie but always failed, terminating the procedure."
+                exit()
+            end
         ensure
             driver.quit
         end

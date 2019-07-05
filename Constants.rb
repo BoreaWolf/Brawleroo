@@ -44,9 +44,11 @@ ID_OTHERS = [ "2V9L0U29",       # Fabio mela
               "8CJ090LV",       # Dominant Jason
               "2PJ09CGYR",      # Rodlers
               "PQQ0RCPL",       # Marko Santos Jr
-              "CQL2GL2J",       # Abdo
-              "GJCPVVL",        # Ggem
-              "280U92L0" ]      # ROBER
+              "CQL2GL2J" ]      # Abdo
+
+ID_IE = [ "GCLGJLV8",           # Hiro ZT
+          "GJCPVVL",            # Ggem
+          "280U92L0" ]          # ROBER
 
 ID_PROS = [ "R0YLYCVL",         # OneSick-
             "28LUY98",          # OG
@@ -58,7 +60,7 @@ ID_YT = [ "208UR80",            # KairosTime
           "Y2QPGG" ]            # Lex
 
 # The pros are currently excluded from the confrontation
-IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS, ID_YT ].flatten
+IDS = [ ID_MINE, ID_FRIENDS, ID_OTHERS, ID_IE, ID_YT ].flatten
 
 # Regex
 REGEX_TROPHIES = /rank:\s*([a-zA-Z\s]*)\s*(\d+)\s*\/\s*(\d+)/
